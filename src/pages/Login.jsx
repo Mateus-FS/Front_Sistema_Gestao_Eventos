@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, setToken } from '../services/api';
+import { auth, setToken } from '../services/apiService';
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail]           = useState('');
@@ -13,7 +13,7 @@ export default function Login({ onLoginSuccess }) {
     setError('');
     setLoading(true);
     try {
-      const data = await api.login(email, senha);
+      const data = await auth.login(email, senha);
       setToken(data.token);
       if (onLoginSuccess) onLoginSuccess(data.token);
     } catch (err) {
