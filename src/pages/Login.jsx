@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import "./Login.css";
@@ -6,25 +6,28 @@ import "./Login.css";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setCarregando(true);
     try {
-      const token = await login(email, senha);
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      navigate(payload.role === "ADMIN" ? "/admin/dashboard" : "/dashboard");
+      await login(email, senha);
     } catch (err) {
-      setError(err.message || "E-mail ou senha inválidos. Tente novamente.");
+      setErro(err.message || "E-mail ou senha inválidos. Tente novamente.");
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
@@ -54,17 +57,17 @@ export default function Login() {
                 <hr className="sge-divider mb-4" />
 
                 {/* Erro */}
-                {error && (
+                {erro && (
                   <div
                     className="alert alert-danger alert-dismissible fade show py-2 small"
                     role="alert"
                   >
                     <i className="bi bi-exclamation-triangle-fill me-2" />
-                    {error}
+                    {erro}
                     <button
                       type="button"
                       className="btn-close"
-                      onClick={() => setError("")}
+                      onClick={() => setErro("")}
                       aria-label="Fechar"
                     />
                   </div>
@@ -117,7 +120,7 @@ export default function Login() {
                         <i className="bi bi-lock" />
                       </span>
                       <input
-                        type={showPassword ? "text" : "password"}
+                        type={mostrarSenha ? "text" : "password"}
                         className="form-control sge-input"
                         id="senha"
                         placeholder="••••••••"
@@ -129,14 +132,14 @@ export default function Login() {
                       <button
                         type="button"
                         className="btn sge-toggle-pw input-group-text"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => setMostrarSenha(!mostrarSenha)}
                         tabIndex={-1}
                         aria-label={
-                          showPassword ? "Ocultar senha" : "Mostrar senha"
+                          mostrarSenha ? "Ocultar senha" : "Mostrar senha"
                         }
                       >
                         <i
-                          className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                          className={`bi ${mostrarSenha ? "bi-eye-slash" : "bi-eye"}`}
                         />
                       </button>
                     </div>
@@ -146,9 +149,9 @@ export default function Login() {
                     <button
                       type="submit"
                       className="btn btn-primary sge-btn-login"
-                      disabled={loading}
+                      disabled={carregando}
                     >
-                      {loading ? (
+                      {carregando ? (
                         <>
                           <span
                             className="spinner-border spinner-border-sm me-2"

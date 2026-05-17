@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { auth, getToken, removeToken, setToken } from "../services/apiService";
 import { AuthContext } from "./AuthContext";
 
@@ -20,17 +20,17 @@ export function AuthProvider({ children }) {
   const [token, setTokenState] = useState(() => getToken());
   const user = useMemo(() => decodeUser(token), [token]);
 
-  async function login(email, senha) {
+  const login = useCallback(async (email, senha) => {
     const data = await auth.login(email, senha);
     setToken(data.token);
     setTokenState(data.token);
     return data.token;
-  }
+  }, []);
 
-  function logout() {
+  const logout = useCallback(() => {
     removeToken();
     setTokenState(null);
-  }
+  }, []);
 
   return (
     <AuthContext.Provider

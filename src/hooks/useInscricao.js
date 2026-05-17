@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { inscricoes } from "../services/apiService";
 
-export function useInscricao(usuarioId) {
+export function useInscricao(usuarioId, onAtualizar) {
   const [sucesso, setSucesso] = useState("");
   const [erro, setErro] = useState("");
   const timerRef = useRef(null);
@@ -10,18 +10,38 @@ export function useInscricao(usuarioId) {
     return () => clearTimeout(timerRef.current);
   }, []);
 
-  const inscrever = async (eventoId) => {
-    setSucesso("");
-    setErro("");
-    try {
-      await inscricoes.salvar({ usuarioId, eventoId });
-      setSucesso("Inscrição realizada com sucesso!");
-      clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setSucesso(""), 6000);
-    } catch (err) {
-      setErro(err.message || "Erro ao realizar inscrição.");
-    }
-  };
+  const inscrever = useCallback(
+    async (eventoId) => {
+      setSucesso("");
+      setErro("");
+      try {
+        await inscricoes.salvar({ usuarioId, eventoId });
+        setSucesso("Inscrição realizada com sucesso!");
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setSucesso(""), 6000);
+      } catch (err) {
+        setErro(err.message || "Erro ao realizar inscrição.");
+      }
+    },
+    [usuarioId],
+  );
 
-  return { sucesso, setSucesso, erro, setErro, inscrever };
+  const desinscrever = useCallback(
+    async (inscricaoId) => {
+      setSucesso("");
+      setErro("");
+      try {
+        await inscricoes.deletar(inscricaoId);
+        setSucesso("Inscrição cancelada com sucesso!");
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setSucesso(""), 6000);
+        onAtualizar?.(); // ← recarrega a lista automaticamente
+      } catch (err) {
+        setErro(err.message || "Erro ao cancelar inscrição.");
+      }
+    },
+    [onAtualizar],
+  );
+
+  return { sucesso, setSucesso, erro, setErro, inscrever, desinscrever };
 }

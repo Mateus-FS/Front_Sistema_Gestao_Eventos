@@ -5,18 +5,18 @@ function normalizar(data) {
   return Array.isArray(data) ? data : (data.content ?? []);
 }
 
-export function useAbas(usuarioId) {
+export function useDashboard(usuarioId) {
   const [abaAtiva, setAbaAtiva] = useState("eventos");
   const [listaEventos, setListaEventos] = useState([]);
   const [minhasInscricoes, setMinhasInscricoes] = useState([]);
   const [listaNotificacoes, setListaNotificacoes] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
-  const [tick, setTick] = useState(0);
+  const [versao, setVersao] = useState(0);
 
   useEffect(() => {
     async function carregar() {
-      setLoading(true);
+      setCarregando(true);
       setErro("");
       try {
         if (abaAtiva === "eventos") {
@@ -32,14 +32,14 @@ export function useAbas(usuarioId) {
       } catch (err) {
         setErro(err.message || "Erro ao carregar dados.");
       } finally {
-        setLoading(false);
+        setCarregando(false);
       }
     }
 
     carregar();
-  }, [abaAtiva, usuarioId, tick]);
+  }, [abaAtiva, usuarioId, versao]);
 
-  const atualizar = useCallback(() => setTick((t) => t + 1), []);
+  const atualizar = useCallback(() => setVersao((v) => v + 1), []);
 
   return {
     abaAtiva,
@@ -47,7 +47,7 @@ export function useAbas(usuarioId) {
     listaEventos,
     minhasInscricoes,
     listaNotificacoes,
-    loading,
+    carregando,
     erro,
     setErro,
     atualizar,

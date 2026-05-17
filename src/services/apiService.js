@@ -3,7 +3,6 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 export const setToken = (token) => localStorage.setItem("sge_token", token);
 export const getToken = () => localStorage.getItem("sge_token");
 export const removeToken = () => localStorage.removeItem("sge_token");
-export const isAuthenticated = () => !!getToken();
 
 export const authHeaders = () => ({
   "Content-Type": "application/json",
@@ -16,6 +15,12 @@ async function request(method, path, body) {
     headers: authHeaders(),
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  if (response.status === 401 || response.status === 403) {
+    removeToken();
+    window.location.href = "/login";
+    return;
+  }
 
   if (!response.ok) {
     const errorText = await response.text();

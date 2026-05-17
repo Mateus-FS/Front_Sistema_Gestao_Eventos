@@ -14,11 +14,11 @@ export default function Cadastro() {
     confirmarSenha: "",
     funcao: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
-  const [showSenha, setShowSenha] = useState(false);
-  const [showConfirmar, setShowConfirmar] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
 
   useEffect(() => {
     if (!sucesso) return;
@@ -28,19 +28,19 @@ export default function Cadastro() {
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setError("");
+    setErro("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const erro = validarCadastro(form);
     if (erro) {
-      setError(erro);
+      setErro(erro);
       return;
     }
 
-    setLoading(true);
-    setError("");
+    setCarregando(true);
+    setErro("");
     try {
       await usuarios.salvar({
         nome: form.nome,
@@ -51,9 +51,9 @@ export default function Cadastro() {
       });
       setSucesso(true);
     } catch (err) {
-      setError(err.message || "Erro ao realizar cadastro. Tente novamente.");
+      setErro(err.message || "Erro ao realizar cadastro. Tente novamente.");
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
@@ -92,17 +92,17 @@ export default function Cadastro() {
                   </div>
                 )}
 
-                {error && (
+                {erro && (
                   <div
                     className="alert alert-danger alert-dismissible fade show py-2 small"
                     role="alert"
                   >
                     <i className="bi bi-exclamation-triangle-fill me-2" />
-                    {error}
+                    {erro}
                     <button
                       type="button"
                       className="btn-close"
-                      onClick={() => setError("")}
+                      onClick={() => setErro("")}
                       aria-label="Fechar"
                     />
                   </div>
@@ -199,7 +199,7 @@ export default function Cadastro() {
                           <i className="bi bi-lock" />
                         </span>
                         <input
-                          type={showSenha ? "text" : "password"}
+                          type={mostrarSenha ? "text" : "password"}
                           className="form-control sge-input"
                           id="senha"
                           name="senha"
@@ -212,11 +212,11 @@ export default function Cadastro() {
                         <button
                           type="button"
                           className="btn sge-toggle-pw input-group-text"
-                          onClick={() => setShowSenha(!showSenha)}
+                          onClick={() => setMostrarSenha(!mostrarSenha)}
                           tabIndex={-1}
                         >
                           <i
-                            className={`bi ${showSenha ? "bi-eye-slash" : "bi-eye"}`}
+                            className={`bi ${mostrarSenha ? "bi-eye-slash" : "bi-eye"}`}
                           />
                         </button>
                       </div>
@@ -234,7 +234,7 @@ export default function Cadastro() {
                           <i className="bi bi-lock-fill" />
                         </span>
                         <input
-                          type={showConfirmar ? "text" : "password"}
+                          type={mostrarConfirmar ? "text" : "password"}
                           className="form-control sge-input"
                           id="confirmarSenha"
                           name="confirmarSenha"
@@ -247,11 +247,11 @@ export default function Cadastro() {
                         <button
                           type="button"
                           className="btn sge-toggle-pw input-group-text"
-                          onClick={() => setShowConfirmar(!showConfirmar)}
+                          onClick={() => setMostrarConfirmar(!mostrarConfirmar)}
                           tabIndex={-1}
                         >
                           <i
-                            className={`bi ${showConfirmar ? "bi-eye-slash" : "bi-eye"}`}
+                            className={`bi ${mostrarConfirmar ? "bi-eye-slash" : "bi-eye"}`}
                           />
                         </button>
                       </div>
@@ -261,9 +261,9 @@ export default function Cadastro() {
                       <button
                         type="submit"
                         className="btn btn-primary sge-btn-login"
-                        disabled={loading}
+                        disabled={carregando}
                       >
-                        {loading ? (
+                        {carregando ? (
                           <>
                             <span
                               className="spinner-border spinner-border-sm me-2"
