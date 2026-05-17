@@ -152,3 +152,109 @@
     padding: 2rem 1.5rem !important;
   }
 }
+
+/* ============================================================
+   SGE – Dashboard do Usuário
+   ============================================================ */
+
+.sge-dash-bg {
+  background: linear-gradient(160deg, #f0f4ff 0%, #fafbff 100%);
+}
+
+.sge-logo-circle-sm {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--zephyr-primary) 0%, #6c8ef6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+/* Abas */
+.sge-tab-btn {
+  border: 1.5px solid var(--zephyr-border) !important;
+  border-radius: var(--zephyr-radius) !important;
+  color: var(--zephyr-secondary) !important;
+  background: #fff !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.45rem 1rem !important;
+  transition: all 0.2s;
+}
+.sge-tab-btn:hover {
+  border-color: var(--zephyr-primary) !important;
+  color: var(--zephyr-primary) !important;
+}
+.sge-tab-ativo {
+  background: linear-gradient(135deg, var(--zephyr-primary) 0%, #5b7af5 100%) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(var(--zephyr-primary-rgb), 0.3);
+}
+
+/* Cards */
+.sge-card {
+  border-radius: var(--zephyr-radius-lg) !important;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Badge tipo evento */
+.sge-badge-tipo {
+  display: inline-block;
+  background: rgba(var(--zephyr-primary-rgb), 0.12);
+  color: var(--zephyr-primary);
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+/* Badges status inscrição */
+.sge-badge-status {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.sge-badge-confirmada { background: #d1fae5; color: #065f46; }
+.sge-badge-cancelada  { background: #fee2e2; color: #991b1b; }
+.sge-badge-pendente   { background: #fef3c7; color: #92400e; }
+
+/* Botão inscrição */
+.sge-btn-inscricao {
+  background: linear-gradient(135deg, var(--zephyr-primary) 0%, #5b7af5 100%) !important;
+  border: none !important;
+  border-radius: var(--zephyr-radius) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem !important;
+  box-shadow: 0 3px 10px rgba(var(--zephyr-primary-rgb), 0.3) !important;
+  transition: transform 0.15s, filter 0.15s !important;
+}
+.sge-btn-inscricao:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* Notificações */
+.sge-notif-card {
+  border-left: 3px solid var(--zephyr-primary) !important;
+}
+.sge-notif-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(var(--zephyr-primary-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--zephyr-primary);
+  font-size: 0.9rem;
+}
