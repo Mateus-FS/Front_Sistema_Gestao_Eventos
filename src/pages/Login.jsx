@@ -104,12 +104,13 @@ export default function Login() {
                       >
                         Senha
                       </label>
-                      <a
-                        href="#"
-                        className="sge-link small text-decoration-none"
+                      <button
+                        type="button"
+                        className="btn btn-link sge-link small text-decoration-none p-0"
+                        onClick={() => navigate("/recuperar-senha")}
                       >
                         Esqueceu a senha?
-                      </a>
+                      </button>
                     </div>
                     <div className="input-group">
                       <span className="input-group-text sge-input-addon">

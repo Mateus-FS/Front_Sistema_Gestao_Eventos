@@ -3,6 +3,7 @@ import { PrivateRoute } from "./components/PrivateRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
+import RecuperarSenha from "./pages/RecuperarSenha";
 import UsuarioDashboard from "./pages/UsuarioDashboard";
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<UsuarioDashboard />} />

@@ -258,3 +258,44 @@
   color: var(--zephyr-primary);
   font-size: 0.9rem;
 }
+
+/* ============================================================
+   SGE – Recuperar Senha (indicador de etapas)
+   ============================================================ */
+
+.sge-etapa-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.sge-etapa-ativa {
+  background: linear-gradient(135deg, var(--zephyr-primary), #5b7af5);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(var(--zephyr-primary-rgb), 0.4);
+}
+.sge-etapa-concluida {
+  background: #d1fae5;
+  color: #065f46;
+}
+.sge-etapa-inativa {
+  background: #f0f0f0;
+  color: var(--zephyr-secondary);
+}
+.sge-etapa-linha {
+  flex: 1;
+  height: 2px;
+  background: #e9ecef;
+  border-radius: 2px;
+  transition: background 0.3s;
+  max-width: 60px;
+}
+.sge-etapa-linha-ativa {
+  background: linear-gradient(90deg, var(--zephyr-primary), #5b7af5);
+}
