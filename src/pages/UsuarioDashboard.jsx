@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertaFeedback } from "../components/AlertaFeedback";
 import { EventoCard } from "../components/EventoCard";
 import { InscricaoCard } from "../components/InscricaoCard";
 import { Navbar } from "../components/Navbar";
 import { NotificacaoCard } from "../components/NotificacaoCard";
-import { useAuth } from "../hooks/useAuth";
-import { useDashboard } from "../hooks/useDashboard";
-import { useInscricao } from "../hooks/useInscricao";
-import "./Login.css";
+import { SpinnerCentral } from "../components/SpinnerCentral";
+import { useAuth } from "../hooks/auth/useAuth";
+import { useEventosUsuario } from "../hooks/usuario/useEventosUsuario";
+import { useInscricoesUsuario } from "../hooks/usuario/useInscricoesUsuario";
+import { useNotificacoesUsuario } from "../hooks/usuario/useNotificacoesUsuario";
+import "../styles/Login.css";
 
 const ABAS = [
   { id: "eventos", icone: "bi-calendar-event", label: "Eventos" },
@@ -15,30 +18,53 @@ const ABAS = [
   { id: "notificacoes", icone: "bi-bell", label: "Notificações" },
 ];
 
-export default function Dashboard() {
+export default function UsuarioDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [abaAtiva, setAbaAtiva] = useState("eventos");
 
   const {
-    abaAtiva,
-    setAbaAtiva,
     listaEventos,
-    minhasInscricoes,
-    listaNotificacoes,
-    carregando,
-    erro: erroDados,
-    setErro: setErroDados,
-    atualizar,
-  } = useDashboard(user.id);
+    carregando: carregandoEventos,
+    erro: erroEventos,
+    setErro: setErroEventos,
+    recarregar: recarregarEventos,
+  } = useEventosUsuario();
 
   const {
+    minhasInscricoes,
+    carregando: carregandoInscricoes,
+    erro: erroInscricoes,
+    setErro: setErroInscricoes,
     sucesso,
     setSucesso,
-    erro: erroInscricao,
-    setErro: setErroInscricao,
     inscrever,
     desinscrever,
-  } = useInscricao(user.id);
+    recarregar: recarregarInscricoes,
+  } = useInscricoesUsuario(user.id);
+
+  const {
+    listaNotificacoes,
+    carregando: carregandoNotificacoes,
+    erro: erroNotificacoes,
+    setErro: setErroNotificacoes,
+    recarregar: recarregarNotificacoes,
+  } = useNotificacoesUsuario();
+
+  const carregando = carregandoEventos || carregandoInscricoes || carregandoNotificacoes;
+  const erro = erroEventos || erroInscricoes || erroNotificacoes;
+
+  const handleFecharErro = () => {
+    setErroEventos("");
+    setErroInscricoes("");
+    setErroNotificacoes("");
+  };
+
+  const handleAtualizar = () => {
+    recarregarEventos();
+    recarregarInscricoes();
+    recarregarNotificacoes();
+  };
 
   const handleSair = () => {
     logout();
@@ -52,15 +78,11 @@ export default function Dashboard() {
       <div className="container py-4">
         <AlertaFeedback
           sucesso={sucesso}
-          erro={erroDados || erroInscricao}
+          erro={erro}
           onFecharSucesso={() => setSucesso("")}
-          onFecharErro={() => {
-            setErroDados("");
-            setErroInscricao("");
-          }}
+          onFecharErro={handleFecharErro}
         />
 
-        {/* Abas */}
         <div className="d-flex gap-2 mb-4 flex-wrap">
           {ABAS.map((aba) => (
             <button
@@ -82,12 +104,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {carregando && (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status" />
-            <p className="text-body-secondary small mt-3 mb-0">Carregando...</p>
-          </div>
-        )}
+        {carregando && <SpinnerCentral />}
 
         {!carregando && abaAtiva === "eventos" && (
           <>
@@ -98,7 +115,7 @@ export default function Dashboard() {
               </h5>
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={atualizar}
+                onClick={handleAtualizar}
               >
                 <i className="bi bi-arrow-clockwise me-1" /> Atualizar
               </button>
@@ -136,7 +153,7 @@ export default function Dashboard() {
               </h5>
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={atualizar}
+                onClick={handleAtualizar}
               >
                 <i className="bi bi-arrow-clockwise me-1" /> Atualizar
               </button>
@@ -160,7 +177,11 @@ export default function Dashboard() {
             ) : (
               <div className="row g-3">
                 {minhasInscricoes.map((inscricao) => (
-                  <InscricaoCard key={inscricao.id} inscricao={inscricao} onDesinscrever={desinscrever} />
+                  <InscricaoCard
+                    key={inscricao.id}
+                    inscricao={inscricao}
+                    onDesinscrever={desinscrever}
+                  />
                 ))}
               </div>
             )}
@@ -176,7 +197,7 @@ export default function Dashboard() {
               </h5>
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={atualizar}
+                onClick={handleAtualizar}
               >
                 <i className="bi bi-arrow-clockwise me-1" /> Atualizar
               </button>

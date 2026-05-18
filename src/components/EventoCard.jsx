@@ -1,3 +1,5 @@
+import { formatarData } from "../utils/formatacoes";
+
 export function EventoCard({ evento, onInscrever }) {
   return (
     <div className="col-12 col-md-6 col-lg-4">
@@ -17,7 +19,7 @@ export function EventoCard({ evento, onInscrever }) {
           <div className="d-flex flex-column gap-1 small text-body-secondary mb-3">
             <div>
               <i className="bi bi-calendar2 me-1" />
-              {evento.dataInicio} → {evento.dataTermino}
+              {formatarData(evento.dataInicio)} → {formatarData(evento.dataTermino)}
             </div>
             {evento.salaNome && (
               <div>

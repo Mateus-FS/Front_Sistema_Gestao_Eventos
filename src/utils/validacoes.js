@@ -1,10 +1,17 @@
-export function validarCadastro(form) {
-  if (!form.nome || !form.email || !form.senha || !form.funcao)
-    return "Preencha todos os campos.";
-  if (form.nome.length < 3) return "O nome deve ter pelo menos 3 caracteres.";
-  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
-  if (!emailValido) return "Informe um e-mail válido.";
-  if (form.senha.length < 4) return "A senha deve ter pelo menos 4 caracteres.";
-  if (form.senha !== form.confirmarSenha) return "As senhas não coincidem.";
+export const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+export const validarCadastro = (form) => {
+  const { nome, email, senha, confirmarSenha, funcao } = form;
+
+  if (!nome || !email || !senha || !funcao) return "Preencha todos os campos.";
+
+  if (nome.length < 3) return "O nome deve ter pelo menos 3 caracteres.";
+
+  if (!validarEmail(email)) return "Informe um e-mail válido.";
+
+  if (senha.length < 4) return "A senha deve ter pelo menos 4 caracteres.";
+
+  if (senha !== confirmarSenha) return "As senhas não coincidem.";
+
   return null;
-}
+};

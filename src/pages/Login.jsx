@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import "./Login.css";
+import { useAuth } from "../hooks/auth/useAuth";
+import "../styles/Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -33,7 +33,6 @@ export default function Login() {
 
   return (
     <div className="sge-login-bg d-flex align-items-center justify-content-center min-vh-100">
-      {/* Shapes decorativos */}
       <div className="sge-bg-shape sge-bg-shape-1" />
       <div className="sge-bg-shape sge-bg-shape-2" />
       <div className="sge-bg-shape sge-bg-shape-3" />
@@ -43,7 +42,6 @@ export default function Login() {
           <div className="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
             <div className="card sge-login-card shadow-lg border-0">
               <div className="card-body p-4 p-md-5">
-                {/* Header */}
                 <div className="text-center mb-4">
                   <div className="sge-logo-circle mx-auto mb-3">
                     <i className="bi bi-calendar-event fs-4" />
@@ -56,7 +54,6 @@ export default function Login() {
 
                 <hr className="sge-divider mb-4" />
 
-                {/* Erro */}
                 {erro && (
                   <div
                     className="alert alert-danger alert-dismissible fade show py-2 small"
@@ -73,7 +70,6 @@ export default function Login() {
                   </div>
                 )}
 
-                {/* Formulário */}
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="mb-3">
                     <label

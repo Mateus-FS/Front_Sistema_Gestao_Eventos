@@ -2,8 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { PrivateRoute } from "./components/PrivateRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import Cadastro from "./pages/Cadastro";
-import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import UsuarioDashboard from "./pages/UsuarioDashboard";
 
 export default function App() {
   return (
@@ -13,7 +13,7 @@ export default function App() {
         <Route path="/cadastro" element={<Cadastro />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<UsuarioDashboard />} />
         </Route>
         <Route element={<PrivateRoute role="ADMIN" />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

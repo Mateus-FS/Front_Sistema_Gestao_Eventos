@@ -1,12 +1,19 @@
 import { useState } from "react";
 
-export function UsuarioForm({ inicial = {}, perfisLista = [], onSalvar, onCancelar, carregando }) {
+export function UsuarioFormulario({
+  inicial = {},
+  perfisLista = [],
+  onSalvar,
+  onCancelar,
+  carregando,
+}) {
   const [form, setForm] = useState({
     funcao: inicial.funcao ?? "",
     perfis: inicial.perfis?.map((p) => p.id ?? p) ?? [],
   });
 
-  const set = (campo) => (e) => setForm((f) => ({ ...f, [campo]: e.target.value }));
+  const set = (campo) => (e) =>
+    setForm((f) => ({ ...f, [campo]: e.target.value }));
 
   const togglePerfil = (id) => {
     setForm((f) => ({
@@ -33,10 +40,16 @@ export function UsuarioForm({ inicial = {}, perfisLista = [], onSalvar, onCancel
 
       <div className="col-12">
         <label className="form-label fw-semibold small">Função</label>
-        <select className="form-select sge-input" value={form.funcao} onChange={set("funcao")}>
+        <select
+          className="form-select sge-input"
+          value={form.funcao}
+          onChange={set("funcao")}
+        >
           <option value="">Sem função</option>
-          {["ADMIN", "ORGANIZADOR", "PARTICIPANTE"].map((f) => (
-            <option key={f} value={f}>{f}</option>
+          {["ALUNO", "PROFESSOR", "SERVIDOR"].map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
           ))}
         </select>
       </div>
@@ -64,11 +77,24 @@ export function UsuarioForm({ inicial = {}, perfisLista = [], onSalvar, onCancel
       )}
 
       <div className="col-12 d-flex gap-2 justify-content-end pt-2">
-        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onCancelar} disabled={carregando}>
+        <button
+          type="button"
+          className="btn btn-outline-secondary btn-sm"
+          onClick={onCancelar}
+          disabled={carregando}
+        >
           Cancelar
         </button>
-        <button type="submit" className="btn sge-btn-login btn-sm text-white" disabled={carregando}>
-          {carregando ? <span className="spinner-border spinner-border-sm me-1" /> : <i className="bi bi-check-lg me-1" />}
+        <button
+          type="submit"
+          className="btn sge-btn-login btn-sm text-white"
+          disabled={carregando}
+        >
+          {carregando ? (
+            <span className="spinner-border spinner-border-sm me-1" />
+          ) : (
+            <i className="bi bi-check-lg me-1" />
+          )}
           Salvar
         </button>
       </div>

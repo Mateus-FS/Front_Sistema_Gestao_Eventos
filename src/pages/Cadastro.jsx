@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usuarios } from "../services/apiService";
+import { usuarioService } from "../services/usuarioService";
 import { validarCadastro } from "../utils/validacoes";
 
 const PERFIL_USER_ID = 2;
@@ -42,7 +42,7 @@ export default function Cadastro() {
     setCarregando(true);
     setErro("");
     try {
-      await usuarios.salvar({
+      await usuarioService.salvar({
         nome: form.nome,
         email: form.email,
         senha: form.senha,
