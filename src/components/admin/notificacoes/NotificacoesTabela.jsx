@@ -80,10 +80,10 @@ export function NotificacoesTabela({ dados }) {
           {lista.map((notificacao) => (
             <div key={notificacao.id} className="card border sge-notif-card">
               <div className="card-body py-3 px-4 d-flex align-items-start gap-3">
-                <div className="sge-notif-icon flex-shrink-0">
+                <div className="sge-notif-icon shrink-0">
                   <i className="bi bi-bell-fill" aria-hidden="true" />
                 </div>
-                <div className="flex-grow-1">
+                <div className="grow-0">
                   <p className="mb-1 small fw-semibold text-body-emphasis">
                     {notificacao.mensagem}
                   </p>
@@ -103,7 +103,7 @@ export function NotificacoesTabela({ dados }) {
                 </div>
                 <button
                   type="button"
-                  className="btn btn-outline-danger btn-sm flex-shrink-0"
+                  className="btn btn-outline-danger btn-sm shrink-0"
                   title="Excluir"
                   aria-label="Excluir notificação"
                   onClick={() =>
