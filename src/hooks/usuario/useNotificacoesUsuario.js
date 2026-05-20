@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { notificacaoService } from "../../services/notificacaoService";
-import { normalizar } from "../../utils/formatacoes";
+import { extrairLista } from "../../utils/formatacoes";
+
+const mensagemErro = (e) =>
+  e?.message ?? "Erro ao carregar notificações.";
 
 export const useNotificacoesUsuario = () => {
   const [listaNotificacoes, setListaNotificacoes] = useState([]);
@@ -9,23 +12,37 @@ export const useNotificacoesUsuario = () => {
   const [versao, setVersao] = useState(0);
 
   useEffect(() => {
-    async function carregar() {
+    let ativo = true;
+
+    const carregar = async () => {
       setCarregando(true);
       setErro("");
+
       try {
         const data = await notificacaoService.listar();
-        setListaNotificacoes(normalizar(data));
-      } catch (err) {
-        setErro(err.message || "Erro ao carregar notificações.");
+
+        if (!ativo) return;
+
+        setListaNotificacoes(extrairLista(data));
+      } catch (e) {
+        if (!ativo) return;
+
+        setErro(mensagemErro(e));
       } finally {
-        setCarregando(false);
+        if (ativo) setCarregando(false);
       }
-    }
+    };
 
     carregar();
+
+    return () => {
+      ativo = false;
+    };
   }, [versao]);
 
-  const recarregar = useCallback(() => setVersao((v) => v + 1), []);
+  const recarregar = useCallback(() => {
+    setVersao((v) => v + 1);
+  }, []);
 
   return { listaNotificacoes, carregando, erro, setErro, recarregar };
 };

@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { inscricaoService } from "../../services/inscricaoService";
-import { normalizar } from "../../utils/formatacoes";
+import { extrairLista } from "../../utils/formatacoes";
+
+const mensagemErro = (e, padrao) => e?.message ?? padrao;
 
 export const useInscricoesUsuario = (usuarioId) => {
   const [minhasInscricoes, setMinhasInscricoes] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [versao, setVersao] = useState(0);
@@ -15,23 +18,42 @@ export const useInscricoesUsuario = (usuarioId) => {
   }, []);
 
   useEffect(() => {
-    async function carregar() {
+    if (!usuarioId) return;
+
+    let ativo = true;
+
+    const carregar = async () => {
       setCarregando(true);
       setErro("");
+
       try {
         const data = await inscricaoService.listarPorUsuario(usuarioId);
-        setMinhasInscricoes(normalizar(data));
-      } catch (err) {
-        setErro(err.message || "Erro ao carregar inscrições.");
+
+        if (!ativo) return;
+
+        setMinhasInscricoes(extrairLista(data));
+      } catch (e) {
+        if (!ativo) return;
+
+        setErro(
+          mensagemErro(e, "Erro ao carregar inscrições."),
+        );
+        setSucesso("");
       } finally {
-        setCarregando(false);
+        if (ativo) setCarregando(false);
       }
-    }
+    };
 
     carregar();
+
+    return () => {
+      ativo = false;
+    };
   }, [usuarioId, versao]);
 
-  const recarregar = useCallback(() => setVersao((v) => v + 1), []);
+  const recarregar = useCallback(() => {
+    setVersao((v) => v + 1);
+  }, []);
 
   const mostrarSucesso = useCallback((msg) => {
     setSucesso(msg);
@@ -41,14 +63,20 @@ export const useInscricoesUsuario = (usuarioId) => {
 
   const inscrever = useCallback(
     async (eventoId) => {
+      setSalvando(true);
       setSucesso("");
       setErro("");
+
       try {
         await inscricaoService.salvar({ usuarioId, eventoId });
         mostrarSucesso("Inscrição realizada com sucesso!");
         recarregar();
-      } catch (err) {
-        setErro(err.message || "Erro ao realizar inscrição.");
+      } catch (e) {
+        setErro(
+          mensagemErro(e, "Erro ao realizar inscrição."),
+        );
+      } finally {
+        setSalvando(false);
       }
     },
     [usuarioId, recarregar, mostrarSucesso],
@@ -56,14 +84,20 @@ export const useInscricoesUsuario = (usuarioId) => {
 
   const desinscrever = useCallback(
     async (inscricaoId) => {
+      setSalvando(true);
       setSucesso("");
       setErro("");
+
       try {
         await inscricaoService.deletar(inscricaoId);
         mostrarSucesso("Inscrição cancelada com sucesso!");
         recarregar();
-      } catch (err) {
-        setErro(err.message || "Erro ao cancelar inscrição.");
+      } catch (e) {
+        setErro(
+          mensagemErro(e, "Erro ao cancelar inscrição."),
+        );
+      } finally {
+        setSalvando(false);
       }
     },
     [recarregar, mostrarSucesso],
@@ -72,6 +106,7 @@ export const useInscricoesUsuario = (usuarioId) => {
   return {
     minhasInscricoes,
     carregando,
+    salvando,
     erro,
     setErro,
     sucesso,

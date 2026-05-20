@@ -1,12 +1,19 @@
-import { AlertaFeedback } from "../../AlertaFeedback";
-import { ConfirmacaoModal } from "../ConfirmacaoModal";
-import { BaseModal } from "../BaseModal";
-import { SpinnerCentral } from "../../SpinnerCentral";
-import { TabelaVazia } from "../../TabelaVazia";
 import { useConfirmacao } from "../../../hooks/ui/useConfirmacao";
 import { useModalEdicao } from "../../../hooks/ui/useModalEdicao";
 import { formatarData } from "../../../utils/formatacoes";
+import { AlertaFeedback } from "../../AlertaFeedback";
+import { SpinnerCentral } from "../../SpinnerCentral";
+import { TabelaVazia } from "../../TabelaVazia";
+import { BaseModal } from "../BaseModal";
+import { ConfirmacaoModal } from "../ConfirmacaoModal";
 import { EventoFormulario } from "./EventoFormulario";
+
+const formatarSala = (evento) => {
+  if (!evento.salaNome) return "—";
+
+  const local = evento.salaLocalizacao ? `${evento.salaLocalizacao} - ` : "";
+  return `${local}${evento.salaNome}`;
+};
 
 export function EventosTabela({ dados }) {
   const {
@@ -26,18 +33,22 @@ export function EventosTabela({ dados }) {
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
 
-  const handleSalvar = async (formData) => {
-    const ok = await salvar(
-      formData,
-      modal.estaEditando ? modal.itemAtual.id : null,
-    );
+  const handleSalvar = async (dadosFormulario) => {
+    const idEdicao = modal.estaEditando ? modal.itemAtual.id : null;
+    const ok = await salvar(dadosFormulario, idEdicao);
+
     if (ok) modal.fechar();
   };
 
-  const handleDeletar = async () => {
-    await deletar(confirmacao.id);
-    confirmacao.cancelar();
+  const handleConfirmarExclusao = async () => {
+    const ok = await deletar(confirmacao.id);
+
+    if (ok) confirmacao.cancelar();
   };
+
+  const chaveFormulario = modal.estaEditando
+    ? `editar-${modal.itemAtual.id}`
+    : "novo";
 
   return (
     <>
@@ -50,14 +61,17 @@ export function EventosTabela({ dados }) {
 
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h6 className="fw-bold text-body-emphasis mb-0">
-          <i className="bi bi-calendar-event me-2 text-primary" />
+          <i className="bi bi-calendar-event me-2 text-primary" aria-hidden="true" />
           Gerenciar eventos
         </h6>
         <button
+          type="button"
           className="btn sge-btn-login btn-sm text-white"
           onClick={modal.abrirNovo}
+          disabled={carregando || salvando}
         >
-          <i className="bi bi-plus-lg me-1" /> Novo evento
+          <i className="bi bi-plus-lg me-1" aria-hidden="true" />
+          Novo evento
         </button>
       </div>
 
@@ -70,54 +84,58 @@ export function EventosTabela({ dados }) {
           <table className="table table-hover align-middle small">
             <thead className="table-light">
               <tr>
-                <th>Título</th>
-                <th>Tipo</th>
-                <th>Início</th>
-                <th>Sala</th>
-                <th>Organizador</th>
-                <th>Inscrições</th>
-                <th className="text-end">Ações</th>
+                <th scope="col">Título</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Início</th>
+                <th scope="col">Sala</th>
+                <th scope="col">Organizador</th>
+                <th scope="col">Inscrições</th>
+                <th scope="col" className="text-end">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((ev) => (
-                <tr key={ev.id}>
-                  <td className="fw-semibold">{ev.titulo}</td>
+              {lista.map((evento) => (
+                <tr key={evento.id}>
+                  <td className="fw-semibold">{evento.titulo}</td>
                   <td>
-                    <span className="sge-badge-tipo">{ev.tipoEvento}</span>
+                    <span className="sge-badge-tipo">{evento.tipoEvento}</span>
                   </td>
-                  <td>{formatarData(ev.dataInicio)}</td>
-                  <td>
-                    {ev.salaNome
-                      ? `${ev.salaLocalizacao ? ev.salaLocalizacao + " - " : ""}${ev.salaNome}`
-                      : "—"}
-                  </td>
-                  <td>{ev.organizadorNome}</td>
+                  <td>{formatarData(evento.dataInicio)}</td>
+                  <td>{formatarSala(evento)}</td>
+                  <td>{evento.organizadorNome ?? "—"}</td>
                   <td>
                     <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill">
-                      {ev.totalInscricoes ?? 0}
+                      {evento.totalInscricoes ?? 0}
                     </span>
                   </td>
                   <td className="text-end">
                     <div className="d-flex gap-1 justify-content-end">
                       <button
+                        type="button"
                         className="btn btn-outline-primary btn-sm"
                         title="Editar"
-                        onClick={() => modal.abrirEdicao(ev)}
+                        aria-label={`Editar evento ${evento.titulo}`}
+                        onClick={() => modal.abrirEdicao(evento)}
+                        disabled={salvando}
                       >
-                        <i className="bi bi-pencil" />
+                        <i className="bi bi-pencil" aria-hidden="true" />
                       </button>
                       <button
+                        type="button"
                         className="btn btn-outline-danger btn-sm"
-                        title="Deletar"
+                        title="Excluir"
+                        aria-label={`Excluir evento ${evento.titulo}`}
                         onClick={() =>
                           confirmacao.confirmar(
-                            ev.id,
-                            `Tem certeza que deseja remover "${ev.titulo}"?`,
+                            evento.id,
+                            `Tem certeza que deseja remover "${evento.titulo}"?`,
                           )
                         }
+                        disabled={salvando}
                       >
-                        <i className="bi bi-trash3" />
+                        <i className="bi bi-trash3" aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -134,22 +152,23 @@ export function EventosTabela({ dados }) {
           onFechar={modal.fechar}
         >
           <EventoFormulario
-            inicial={modal.itemAtual}
+            key={chaveFormulario}
+            valoresIniciais={modal.itemAtual}
             salas={salas}
             organizadores={organizadores}
             onSalvar={handleSalvar}
             onCancelar={modal.fechar}
-            carregando={salvando}
+            salvando={salvando}
           />
         </BaseModal>
       )}
 
       <ConfirmacaoModal
         aberto={confirmacao.aberto}
-        titulo="Deletar evento"
+        titulo="Excluir evento"
         mensagem={confirmacao.mensagem}
-        textoBotao="Deletar"
-        onConfirmar={handleDeletar}
+        textoBotao="Excluir"
+        onConfirmar={handleConfirmarExclusao}
         onCancelar={confirmacao.cancelar}
         carregando={salvando}
       />

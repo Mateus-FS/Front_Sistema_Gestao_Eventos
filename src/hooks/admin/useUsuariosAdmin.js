@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 import { perfilService } from "../../services/perfilService";
 import { usuarioService } from "../../services/usuarioService";
 
+const mensagemErro = (e) => e?.message ?? "Erro desconhecido";
+
 export const useUsuariosAdmin = () => {
   const [lista, setLista] = useState([]);
   const [perfis, setPerfis] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [versao, setVersao] = useState(0);
-  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     let ativo = true;
@@ -31,7 +33,8 @@ export const useUsuariosAdmin = () => {
       } catch (e) {
         if (!ativo) return;
 
-        setErro(e.message);
+        setErro(mensagemErro(e));
+        setSucesso("");
       } finally {
         if (ativo) setCarregando(false);
       }
@@ -50,18 +53,18 @@ export const useUsuariosAdmin = () => {
 
   const atualizar = useCallback(async (id, dados) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       await usuarioService.atualizar(id, dados);
 
       setSucesso("Usuário atualizado!");
-
       setVersao((v) => v + 1);
 
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);
@@ -70,18 +73,18 @@ export const useUsuariosAdmin = () => {
 
   const deletar = useCallback(async (id) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       await usuarioService.deletar(id);
 
       setSucesso("Usuário removido!");
-
       setVersao((v) => v + 1);
 
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);
@@ -92,6 +95,7 @@ export const useUsuariosAdmin = () => {
     lista,
     perfis,
     carregando,
+    salvando,
     erro,
     setErro,
     sucesso,
@@ -99,6 +103,5 @@ export const useUsuariosAdmin = () => {
     atualizar,
     deletar,
     recarregar,
-    salvando,
   };
 };

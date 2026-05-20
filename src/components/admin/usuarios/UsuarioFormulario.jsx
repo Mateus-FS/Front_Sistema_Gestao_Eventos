@@ -1,74 +1,101 @@
 import { useState } from "react";
 
+const FUNCOES = ["ALUNO", "PROFESSOR", "SERVIDOR"];
+
+const criarEstadoInicial = (usuario = {}) => ({
+  funcao: usuario.funcao ?? "",
+  perfis: usuario.perfis?.map((perfil) => Number(perfil.id ?? perfil)) ?? [],
+});
+
 export function UsuarioFormulario({
-  inicial = {},
-  perfisLista = [],
+  valoresIniciais = {},
+  perfis = [],
   onSalvar,
   onCancelar,
-  carregando,
+  salvando = false,
 }) {
-  const [form, setForm] = useState({
-    funcao: inicial.funcao ?? "",
-    perfis: inicial.perfis?.map((p) => p.id ?? p) ?? [],
-  });
+  const [dados, setDados] = useState(() => criarEstadoInicial(valoresIniciais));
 
-  const set = (campo) => (e) =>
-    setForm((f) => ({ ...f, [campo]: e.target.value }));
+  const atualizarCampo = (campo) => (evento) => {
+    setDados((atual) => ({ ...atual, [campo]: evento.target.value }));
+  };
 
-  const togglePerfil = (id) => {
-    setForm((f) => ({
-      ...f,
-      perfis: f.perfis.includes(id)
-        ? f.perfis.filter((p) => p !== id)
-        : [...f.perfis, id],
+  const alternarPerfil = (perfilId) => {
+    const id = Number(perfilId);
+
+    setDados((atual) => ({
+      ...atual,
+      perfis: atual.perfis.includes(id)
+        ? atual.perfis.filter((item) => item !== id)
+        : [...atual.perfis, id],
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSalvar(form);
+  const handleSubmit = (evento) => {
+    evento.preventDefault();
+
+    onSalvar({
+      funcao: dados.funcao || null,
+      perfis: dados.perfis,
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="row g-3">
+    <form onSubmit={handleSubmit} className="row g-3" noValidate>
       <div className="col-12">
         <p className="small text-body-secondary mb-2">
-          <i className="bi bi-person me-1" />
-          <strong>{inicial.nome}</strong> — {inicial.email}
+          <i className="bi bi-person me-1" aria-hidden="true" />
+          <strong>{valoresIniciais.nome}</strong> — {valoresIniciais.email}
         </p>
       </div>
 
       <div className="col-12">
-        <label className="form-label fw-semibold small">Função</label>
+        <label htmlFor="usuario-funcao" className="form-label fw-semibold small">
+          Função
+        </label>
         <select
+          id="usuario-funcao"
           className="form-select sge-input"
-          value={form.funcao}
-          onChange={set("funcao")}
+          value={dados.funcao}
+          onChange={atualizarCampo("funcao")}
+          disabled={salvando}
         >
           <option value="">Sem função</option>
-          {["ALUNO", "PROFESSOR", "SERVIDOR"].map((f) => (
-            <option key={f} value={f}>
-              {f}
+          {FUNCOES.map((funcao) => (
+            <option key={funcao} value={funcao}>
+              {funcao}
             </option>
           ))}
         </select>
       </div>
 
-      {perfisLista.length > 0 && (
+      {perfis.length > 0 && (
         <div className="col-12">
-          <label className="form-label fw-semibold small">Perfis</label>
-          <div className="d-flex flex-wrap gap-2">
-            {perfisLista.map((p) => {
-              const ativo = form.perfis.includes(p.id);
+          <span className="form-label fw-semibold small d-block">Perfis</span>
+          <div
+            className="d-flex flex-wrap gap-2"
+            role="group"
+            aria-label="Perfis do usuário"
+          >
+            {perfis.map((perfil) => {
+              const perfilId = Number(perfil.id);
+              const selecionado = dados.perfis.includes(perfilId);
+
               return (
                 <button
-                  key={p.id}
+                  key={perfil.id}
                   type="button"
-                  onClick={() => togglePerfil(p.id)}
-                  className={`btn btn-sm ${ativo ? "btn-primary" : "btn-outline-secondary"}`}
+                  onClick={() => alternarPerfil(perfilId)}
+                  disabled={salvando}
+                  aria-pressed={selecionado}
+                  className={`btn btn-sm ${
+                    selecionado ? "btn-primary" : "btn-outline-secondary"
+                  }`}
                 >
-                  {ativo && <i className="bi bi-check me-1" />}
-                  {p.nome}
+                  {selecionado && (
+                    <i className="bi bi-check me-1" aria-hidden="true" />
+                  )}
+                  {perfil.nome}
                 </button>
               );
             })}
@@ -81,21 +108,25 @@ export function UsuarioFormulario({
           type="button"
           className="btn btn-outline-secondary btn-sm"
           onClick={onCancelar}
-          disabled={carregando}
+          disabled={salvando}
         >
           Cancelar
         </button>
         <button
           type="submit"
           className="btn sge-btn-login btn-sm text-white"
-          disabled={carregando}
+          disabled={salvando}
         >
-          {carregando ? (
-            <span className="spinner-border spinner-border-sm me-1" />
+          {salvando ? (
+            <span
+              className="spinner-border spinner-border-sm me-1"
+              role="status"
+              aria-hidden="true"
+            />
           ) : (
-            <i className="bi bi-check-lg me-1" />
+            <i className="bi bi-check-lg me-1" aria-hidden="true" />
           )}
-          Salvar
+          Salvar alterações
         </button>
       </div>
     </form>

@@ -1,18 +1,18 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export const useConfirmacao = () => {
   const [estado, setEstado] = useState(null);
 
-  const confirmar = (id, mensagem) => {
+  const confirmar = useCallback((id, mensagem) => {
     setEstado({ id, mensagem });
-  };
+  }, []);
 
-  const cancelar = () => {
+  const cancelar = useCallback(() => {
     setEstado(null);
-  };
+  }, []);
 
   return {
-    aberto: !!estado,
+    aberto: Boolean(estado),
     id: estado?.id,
     mensagem: estado?.mensagem,
     confirmar,

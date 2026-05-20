@@ -16,13 +16,13 @@ export const request = async (method, path, body) => {
 
   if (response.status === 401 || response.status === 403) {
     removeToken();
-    window.location.href = "/login";
-    return;
+    window.dispatchEvent(new Event("auth:expirado"));
+    throw new Error("Sessão expirada. Faça login novamente.");
   }
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Erro ${response.status}`);
+    const texto = await response.text();
+    throw new Error(texto || "Erro na requisição");
   }
 
   if (response.status === 204) return null;

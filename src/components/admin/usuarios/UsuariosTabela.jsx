@@ -3,8 +3,8 @@ import { useModalEdicao } from "../../../hooks/ui/useModalEdicao";
 import { AlertaFeedback } from "../../AlertaFeedback";
 import { SpinnerCentral } from "../../SpinnerCentral";
 import { TabelaVazia } from "../../TabelaVazia";
-import { ConfirmacaoModal } from "../ConfirmacaoModal";
 import { BaseModal } from "../BaseModal";
+import { ConfirmacaoModal } from "../ConfirmacaoModal";
 import { UsuarioFormulario } from "./UsuarioFormulario";
 
 export function UsuariosTabela({ dados }) {
@@ -24,14 +24,16 @@ export function UsuariosTabela({ dados }) {
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
 
-  const handleSalvar = async (form) => {
-    const ok = await atualizar(modal.itemAtual.id, form);
+  const handleSalvar = async (dadosFormulario) => {
+    const ok = await atualizar(modal.itemAtual.id, dadosFormulario);
+
     if (ok) modal.fechar();
   };
 
-  const handleDeletar = async () => {
-    await deletar(confirmacao.id);
-    confirmacao.cancelar();
+  const handleConfirmarExclusao = async () => {
+    const ok = await deletar(confirmacao.id);
+
+    if (ok) confirmacao.cancelar();
   };
 
   return (
@@ -45,7 +47,7 @@ export function UsuariosTabela({ dados }) {
 
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h6 className="fw-bold text-body-emphasis mb-0">
-          <i className="bi bi-people me-2 text-primary" />
+          <i className="bi bi-people me-2 text-primary" aria-hidden="true" />
           Gerenciar usuários
         </h6>
         <span className="badge bg-primary bg-opacity-10 text-primary">
@@ -62,33 +64,34 @@ export function UsuariosTabela({ dados }) {
           <table className="table table-hover align-middle small">
             <thead className="table-light">
               <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Função</th>
-                <th>Perfis</th>
-                <th className="text-end">Ações</th>
+                <th scope="col">Nome</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Função</th>
+                <th scope="col">Perfis</th>
+                <th scope="col" className="text-end">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((u) => (
-                <tr key={u.id}>
-                  <td className="fw-semibold">{u.nome}</td>
-                  <td className="text-body-secondary">{u.email}</td>
+              {lista.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td className="fw-semibold">{usuario.nome}</td>
+                  <td className="text-body-secondary">{usuario.email}</td>
                   <td>
-                    {u.funcao ? (
-                      <span className="sge-badge-tipo">{u.funcao}</span>
+                    {usuario.funcao ? (
+                      <span className="sge-badge-tipo">{usuario.funcao}</span>
                     ) : (
                       <span className="text-body-secondary">—</span>
                     )}
                   </td>
                   <td>
                     <div className="d-flex flex-wrap gap-1">
-                      {(u.perfis ?? []).map((p) => (
+                      {(usuario.perfis ?? []).map((perfil) => (
                         <span
-                          key={p.id ?? p.nome ?? p}
-                          className="badge bg-secondary bg-opacity-10 text-secondary rounded-pill"
-                        >
-                          {p.nome ?? p}
+                          key={perfil.id ?? perfil.nome}
+                          className="sge-badge-tipo"                        >
+                          {perfil.nome ?? perfil}
                         </span>
                       ))}
                     </div>
@@ -96,23 +99,29 @@ export function UsuariosTabela({ dados }) {
                   <td className="text-end">
                     <div className="d-flex gap-1 justify-content-end">
                       <button
+                        type="button"
                         className="btn btn-outline-primary btn-sm"
                         title="Editar"
-                        onClick={() => modal.abrirEdicao(u)}
+                        aria-label={`Editar usuário ${usuario.nome}`}
+                        onClick={() => modal.abrirEdicao(usuario)}
+                        disabled={salvando}
                       >
-                        <i className="bi bi-pencil" />
+                        <i className="bi bi-pencil" aria-hidden="true" />
                       </button>
                       <button
+                        type="button"
                         className="btn btn-outline-danger btn-sm"
-                        title="Deletar"
+                        title="Excluir"
+                        aria-label={`Excluir usuário ${usuario.nome}`}
                         onClick={() =>
                           confirmacao.confirmar(
-                            u.id,
-                            `Tem certeza que deseja remover "${u.nome}"?`,
+                            usuario.id,
+                            `Tem certeza que deseja remover "${usuario.nome}"?`,
                           )
                         }
+                        disabled={salvando}
                       >
-                        <i className="bi bi-trash3" />
+                        <i className="bi bi-trash3" aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -126,21 +135,22 @@ export function UsuariosTabela({ dados }) {
       {modal.estaAberto && (
         <BaseModal titulo="Editar usuário" onFechar={modal.fechar}>
           <UsuarioFormulario
-            inicial={modal.itemAtual}
-            perfisLista={perfis}
+            key={modal.itemAtual.id}
+            valoresIniciais={modal.itemAtual}
+            perfis={perfis}
             onSalvar={handleSalvar}
             onCancelar={modal.fechar}
-            carregando={salvando}
+            salvando={salvando}
           />
         </BaseModal>
       )}
 
       <ConfirmacaoModal
         aberto={confirmacao.aberto}
-        titulo="Deletar usuário"
+        titulo="Excluir usuário"
         mensagem={confirmacao.mensagem}
-        textoBotao="Deletar"
-        onConfirmar={handleDeletar}
+        textoBotao="Excluir"
+        onConfirmar={handleConfirmarExclusao}
         onCancelar={confirmacao.cancelar}
         carregando={salvando}
       />

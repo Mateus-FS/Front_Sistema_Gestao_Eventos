@@ -1,24 +1,21 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export const useModalEdicao = () => {
   const [modal, setModal] = useState(null);
 
-  const abrirNovo = () => {
+  const abrirNovo = useCallback(() => {
     setModal({ tipo: "novo" });
-  };
+  }, []);
 
-  const abrirEdicao = (item) => {
-    setModal({
-      tipo: "editar",
-      item,
-    });
-  };
+  const abrirEdicao = useCallback((item) => {
+    setModal({ tipo: "editar", item });
+  }, []);
 
-  const fechar = () => {
+  const fechar = useCallback(() => {
     setModal(null);
-  };
+  }, []);
 
-  const estaAberto = !!modal;
+  const estaAberto = Boolean(modal);
   const estaEditando = modal?.tipo === "editar";
   const itemAtual = modal?.item ?? {};
 

@@ -23,15 +23,22 @@ export function SalasTabela({ dados }) {
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
 
-  const handleSalvar = async (form) => {
-    const ok = await salvar(form, modal.estaEditando ? modal.itemAtual.id : null);
+  const handleSalvar = async (dadosFormulario) => {
+    const idEdicao = modal.estaEditando ? modal.itemAtual.id : null;
+    const ok = await salvar(dadosFormulario, idEdicao);
+
     if (ok) modal.fechar();
   };
 
-  const handleDeletar = async () => {
-    await deletar(confirmacao.id);
-    confirmacao.cancelar();
+  const handleConfirmarExclusao = async () => {
+    const ok = await deletar(confirmacao.id);
+
+    if (ok) confirmacao.cancelar();
   };
+
+  const chaveFormulario = modal.estaEditando
+    ? `editar-${modal.itemAtual.id}`
+    : "novo";
 
   return (
     <>
@@ -44,14 +51,17 @@ export function SalasTabela({ dados }) {
 
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h6 className="fw-bold text-body-emphasis mb-0">
-          <i className="bi bi-door-open me-2 text-primary" />
+          <i className="bi bi-door-open me-2 text-primary" aria-hidden="true" />
           Gerenciar salas
         </h6>
         <button
+          type="button"
           className="btn sge-btn-login btn-sm text-white"
           onClick={modal.abrirNovo}
+          disabled={carregando || salvando}
         >
-          <i className="bi bi-plus-lg me-1" /> Nova sala
+          <i className="bi bi-plus-lg me-1" aria-hidden="true" />
+          Nova sala
         </button>
       </div>
 
@@ -61,41 +71,50 @@ export function SalasTabela({ dados }) {
         <TabelaVazia icone="bi-door-closed" texto="Nenhuma sala cadastrada." />
       ) : (
         <div className="row g-3">
-          {lista.map((s) => (
-            <div key={s.id} className="col-md-4 col-sm-6">
+          {lista.map((sala) => (
+            <div key={sala.id} className="col-md-4 col-sm-6">
               <div className="card sge-card border h-100">
                 <div className="card-body">
                   <div className="d-flex align-items-start justify-content-between">
                     <div>
-                      <div className="fw-bold text-body-emphasis">{s.nome}</div>
+                      <div className="fw-bold text-body-emphasis">
+                        {sala.nome}
+                      </div>
                       <div className="text-body-secondary small mt-1">
-                        <i className="bi bi-geo-alt me-1" />
-                        {s.localizacao || "—"}
+                        <i className="bi bi-geo-alt me-1" aria-hidden="true" />
+                        {sala.localizacao || "—"}
                       </div>
                     </div>
                     <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill ms-2">
-                      <i className="bi bi-people me-1" />
-                      {s.capacidade}
+                      <i className="bi bi-people me-1" aria-hidden="true" />
+                      {sala.capacidade}
                     </span>
                   </div>
                 </div>
                 <div className="card-footer bg-transparent border-top d-flex gap-2 justify-content-end py-2">
                   <button
+                    type="button"
                     className="btn btn-outline-primary btn-sm"
-                    onClick={() => modal.abrirEdicao(s)}
+                    onClick={() => modal.abrirEdicao(sala)}
+                    disabled={salvando}
                   >
-                    <i className="bi bi-pencil me-1" /> Editar
+                    <i className="bi bi-pencil me-1" aria-hidden="true" />
+                    Editar
                   </button>
                   <button
+                    type="button"
                     className="btn btn-outline-danger btn-sm"
+                    title="Excluir"
+                    aria-label={`Excluir sala ${sala.nome}`}
                     onClick={() =>
                       confirmacao.confirmar(
-                        s.id,
-                        `Tem certeza que deseja remover a sala "${s.nome}"?`
+                        sala.id,
+                        `Tem certeza que deseja remover a sala "${sala.nome}"?`,
                       )
                     }
+                    disabled={salvando}
                   >
-                    <i className="bi bi-trash3" />
+                    <i className="bi bi-trash3" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -110,20 +129,21 @@ export function SalasTabela({ dados }) {
           onFechar={modal.fechar}
         >
           <SalaFormulario
-            inicial={modal.itemAtual}
+            key={chaveFormulario}
+            valoresIniciais={modal.itemAtual}
             onSalvar={handleSalvar}
             onCancelar={modal.fechar}
-            carregando={salvando}
+            salvando={salvando}
           />
         </BaseModal>
       )}
 
       <ConfirmacaoModal
         aberto={confirmacao.aberto}
-        titulo="Deletar sala"
+        titulo="Excluir sala"
         mensagem={confirmacao.mensagem}
-        textoBotao="Deletar"
-        onConfirmar={handleDeletar}
+        textoBotao="Excluir"
+        onConfirmar={handleConfirmarExclusao}
         onCancelar={confirmacao.cancelar}
         carregando={salvando}
       />

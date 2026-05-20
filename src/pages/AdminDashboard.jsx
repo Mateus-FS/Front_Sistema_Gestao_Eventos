@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EventosTabela } from "../components/admin/eventos/EventosTabela";
-import { Inscricoes } from "../components/admin/inscricoes/Inscricoes";
+import { InscricoesTabela } from "../components/admin/inscricoes/InscricoesTabela";
 import { NotificacoesTabela } from "../components/admin/notificacoes/NotificacoesTabela";
 import { Perfis } from "../components/admin/perfis/Perfis";
 import { SalasTabela } from "../components/admin/salas/SalasTabela";
@@ -14,7 +14,6 @@ import { useNotificacoesAdmin } from "../hooks/admin/useNotificacoesAdmin";
 import { usePerfisAdmin } from "../hooks/admin/usePerfisAdmin";
 import { useSalasAdmin } from "../hooks/admin/useSalasAdmin";
 import { useUsuariosAdmin } from "../hooks/admin/useUsuariosAdmin";
-
 
 import "../styles/Login.css";
 
@@ -35,8 +34,7 @@ export default function AdminDashboard() {
 
   const hookEventos = useEventosAdmin();
   const hookUsuarios = useUsuariosAdmin();
-  const hookInscricoes = useInscricoesAdmin();
-  const hookSalas = useSalasAdmin();
+  const hookInscricoes = useInscricoesAdmin({onAtualizar: hookEventos.recarregar});  const hookSalas = useSalasAdmin();
   const hookNotificacoes = useNotificacoesAdmin();
   const hookPerfis = usePerfisAdmin();
 
@@ -72,11 +70,7 @@ export default function AdminDashboard() {
           style={{ borderRadius: "0.75rem" }}
         >
           <div className="card-body p-4">
-            {abasVisitadas.has("eventos") && (
-              <div hidden={abaAtiva !== "eventos"}>
-                <EventosTabela dados={hookEventos} />
-              </div>
-            )}
+            {abaAtiva === "eventos" && <EventosTabela dados={hookEventos} />}
             {abasVisitadas.has("usuarios") && (
               <div hidden={abaAtiva !== "usuarios"}>
                 <UsuariosTabela dados={hookUsuarios} />
@@ -84,7 +78,11 @@ export default function AdminDashboard() {
             )}
             {abasVisitadas.has("inscricoes") && (
               <div hidden={abaAtiva !== "inscricoes"}>
-                <Inscricoes dados={hookInscricoes} eventosList={hookEventos.lista} />
+                <InscricoesTabela
+                  dados={hookInscricoes}
+                  eventos={hookEventos.lista}
+                  usuarios={hookUsuarios.lista}
+                />
               </div>
             )}
             {abasVisitadas.has("salas") && (

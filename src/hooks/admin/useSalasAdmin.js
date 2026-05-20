@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { salaService } from "../../services/salaService";
 
+const mensagemErro = (e) => e?.message ?? "Erro desconhecido";
+
 export const useSalasAdmin = () => {
   const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(false);
@@ -25,7 +27,8 @@ export const useSalasAdmin = () => {
       } catch (e) {
         if (!ativo) return;
 
-        setErro(e.message);
+        setErro(mensagemErro(e));
+        setSucesso("");
       } finally {
         if (ativo) setCarregando(false);
       }
@@ -44,6 +47,8 @@ export const useSalasAdmin = () => {
 
   const salvar = useCallback(async (dados, id = null) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       if (id) {
@@ -53,13 +58,11 @@ export const useSalasAdmin = () => {
       }
 
       setSucesso(id ? "Sala atualizada!" : "Sala criada!");
-
       setVersao((v) => v + 1);
 
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);
@@ -68,18 +71,18 @@ export const useSalasAdmin = () => {
 
   const deletar = useCallback(async (id) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       await salaService.deletar(id);
 
       setSucesso("Sala removida!");
-
       setVersao((v) => v + 1);
 
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);

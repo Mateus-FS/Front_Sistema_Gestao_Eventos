@@ -3,6 +3,8 @@ import { eventoService } from "../../services/eventoService";
 import { salaService } from "../../services/salaService";
 import { usuarioService } from "../../services/usuarioService";
 
+const mensagemErro = (e) => e?.message ?? "Erro desconhecido";
+
 export const useEventosAdmin = () => {
   const [lista, setLista] = useState([]);
   const [salas, setSalas] = useState([]);
@@ -35,7 +37,8 @@ export const useEventosAdmin = () => {
       } catch (e) {
         if (!ativo) return;
 
-        setErro(e.message);
+        setErro(mensagemErro(e));
+        setSucesso("");
       } finally {
         if (ativo) setCarregando(false);
       }
@@ -54,6 +57,8 @@ export const useEventosAdmin = () => {
 
   const salvar = useCallback(async (dados, id = null) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       if (id) {
@@ -63,13 +68,11 @@ export const useEventosAdmin = () => {
       }
 
       setSucesso(id ? "Evento atualizado!" : "Evento criado!");
-
       setVersao((v) => v + 1);
 
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);
@@ -78,18 +81,16 @@ export const useEventosAdmin = () => {
 
   const deletar = useCallback(async (id) => {
     setSalvando(true);
+    setErro("");
+    setSucesso("");
 
     try {
       await eventoService.deletar(id);
-
       setSucesso("Evento removido!");
-
       setVersao((v) => v + 1);
-
       return true;
     } catch (e) {
-      setErro(e.message);
-
+      setErro(mensagemErro(e));
       return false;
     } finally {
       setSalvando(false);
