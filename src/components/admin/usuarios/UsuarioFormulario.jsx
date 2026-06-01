@@ -1,5 +1,4 @@
 import { useForm, Controller } from "react-hook-form";
-import { useForm, Controller } from "react-hook-form";
 
 const FUNCOES = ["ALUNO", "PROFESSOR", "SERVIDOR"];
 
@@ -16,15 +15,7 @@ export default function UsuarioFormulario({
       perfis: valoresIniciais.perfis?.map((p) => Number(p.id ?? p)) ?? [],
     },
   });
-  const { register, control, handleSubmit } = useForm({
-    defaultValues: {
-      funcao: valoresIniciais.funcao ?? "",
-      perfis: valoresIniciais.perfis?.map((p) => Number(p.id ?? p)) ?? [],
-    },
-  });
 
-  const onSubmit = (data) =>
-    onSalvar({ funcao: data.funcao || null, perfis: data.perfis });
   const onSubmit = (data) =>
     onSalvar({ funcao: data.funcao || null, perfis: data.perfis });
 
