@@ -1,27 +1,22 @@
-export default function NomeInput({ value, onChange }) {
+export default function NomeInput({ registration, error }) {
   return (
     <div className="mb-3">
-      <label
-        htmlFor="nome"
-        className="form-label fw-semibold small text-body-emphasis"
-      >
+      <label htmlFor="nome" className="form-label fw-semibold small text-body-emphasis">
         Nome completo
       </label>
-      <div className="input-group">
+      <div className="input-group has-validation">
         <span className="input-group-text sge-input-addon">
           <i className="bi bi-person" />
         </span>
         <input
           type="text"
-          className="form-control sge-input"
+          className={`form-control sge-input ${error ? "is-invalid" : ""}`}
           id="nome"
-          name="nome"
           placeholder="Seu nome"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          required
           autoFocus
+          {...registration}
         />
+        {error && <div className="invalid-feedback">{error}</div>}
       </div>
     </div>
   );

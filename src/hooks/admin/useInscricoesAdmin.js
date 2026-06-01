@@ -5,6 +5,7 @@ import { inscricaoService } from "../../services/inscricaoService";
 import { extrairLista } from "../../utils/paginacao";
 
 export const useInscricoesAdmin = ({ onAtualizar } = {}) => {
+  console.log("useInscricoesAdmin montado");
   const queryClient = useQueryClient();
   const [filtroEvento, setFiltroEvento] = useState("");
   const [filtroUsuario, setFiltroUsuario] = useState("");

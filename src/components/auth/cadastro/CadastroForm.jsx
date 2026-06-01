@@ -1,6 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { useCadastro } from "../../../hooks/auth/useCadastro";
 import { cadastroSchema } from "../../../utils/cadastroSchema";
 import EmailInput from "../../shared/EmailInput";
@@ -17,7 +18,11 @@ export default function CadastroForm() {
 
   const { mutate, isPending } = useCadastro();
 
-  const { handleSubmit, setValue, watch } = useForm({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(cadastroSchema),
   });
 
@@ -28,6 +33,10 @@ export default function CadastroForm() {
       email: data.email,
       senha: data.senha,
     });
+  };
+
+  const onInvalid = () => {
+    toast.warning("Preencha todos os campos obrigatórios.");
   };
 
   return (
@@ -43,33 +52,33 @@ export default function CadastroForm() {
               <CadastroHeader />
               <hr className="sge-divider mb-4" />
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
                 <NomeInput
-                  value={watch("nome") ?? ""}
-                  onChange={(val) => setValue("nome", val)}
+                  registration={register("nome")}
+                  error={errors.nome?.message}
                 />
 
                 <FuncaoSelect
-                  value={watch("funcao") ?? ""}
-                  onChange={(e) => setValue("funcao", e.target.value)}
+                  registration={register("funcao")}
+                  error={errors.funcao?.message}
                 />
 
                 <EmailInput
-                  value={watch("email") ?? ""}
-                  onChange={(val) => setValue("email", val)}
+                  registration={register("email")}
+                  error={errors.email?.message}
                 />
 
                 <SenhaInput
-                  value={watch("senha") ?? ""}
-                  onChange={(val) => setValue("senha", val)}
+                  registration={register("senha")}
+                  error={errors.senha?.message}
                   mostrarSenha={mostrarSenha}
                   toggleSenha={() => setMostrarSenha(!mostrarSenha)}
                   autoComplete="new-password"
                 />
 
                 <SenhaConfirmacaoInput
-                  value={watch("confirmarSenha") ?? ""}
-                  onChange={(e) => setValue("confirmarSenha", e.target.value)}
+                  registration={register("confirmarSenha")}
+                  error={errors.confirmarSenha?.message}
                   mostrarSenha={mostrarConfirmar}
                   toggleSenha={() => setMostrarConfirmar(!mostrarConfirmar)}
                 />

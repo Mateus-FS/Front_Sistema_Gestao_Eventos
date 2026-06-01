@@ -5,13 +5,13 @@ import { cadastroService } from "../../services/cadastroService";
 import { toast } from "sonner";
 
 export function useCadastro() {
-  const { login } = useAuth();
+  const { loginComToken } = useAuth();
   const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (dados) => cadastroService.cadastrar(dados),
 
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       loginComToken(data.token);
       toast.success("Cadastro realizado com sucesso!");
       const role = data.usuario?.role;
@@ -23,9 +23,9 @@ export function useCadastro() {
       if (!error?.response) {
         toast.error("Não foi possível conectar ao servidor.");
       } else if (status === 409) {
-        toast.error("Este email já está em uso.");
+        toast.error("Este e-mail já está em uso.");
       } else if (status >= 500) {
-        toast.error("Erro interno.");
+        toast.error("Erro interno do servidor.");
       } else {
         toast.error("Erro ao realizar cadastro.");
       }

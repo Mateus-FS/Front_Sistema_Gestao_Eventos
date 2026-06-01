@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 const FUNCOES = ["ALUNO", "PROFESSOR", "SERVIDOR"];
 
@@ -15,7 +16,15 @@ export default function UsuarioFormulario({
       perfis: valoresIniciais.perfis?.map((p) => Number(p.id ?? p)) ?? [],
     },
   });
+  const { register, control, handleSubmit } = useForm({
+    defaultValues: {
+      funcao: valoresIniciais.funcao ?? "",
+      perfis: valoresIniciais.perfis?.map((p) => Number(p.id ?? p)) ?? [],
+    },
+  });
 
+  const onSubmit = (data) =>
+    onSalvar({ funcao: data.funcao || null, perfis: data.perfis });
   const onSubmit = (data) =>
     onSalvar({ funcao: data.funcao || null, perfis: data.perfis });
 
@@ -37,6 +46,7 @@ export default function UsuarioFormulario({
           className="form-select sge-input"
           disabled={salvando}
           {...register("funcao")}
+          {...register("funcao")}
         >
           <option value="">Sem função</option>
           {FUNCOES.map((funcao) => (
@@ -50,6 +60,18 @@ export default function UsuarioFormulario({
       {perfis.length > 0 && (
         <div className="col-12">
           <span className="form-label fw-semibold small d-block">Perfis</span>
+          <Controller
+            name="perfis"
+            control={control}
+            render={({ field }) => (
+              <div
+                className="d-flex flex-wrap gap-2"
+                role="group"
+                aria-label="Perfis do usuário"
+              >
+                {perfis.map((perfil) => {
+                  const perfilId = Number(perfil.id);
+                  const selecionado = field.value.includes(perfilId);
           <Controller
             name="perfis"
             control={control}
@@ -90,10 +112,36 @@ export default function UsuarioFormulario({
               </div>
             )}
           />
+                  return (
+                    <button
+                      key={perfil.id}
+                      type="button"
+                      onClick={() =>
+                        field.onChange(
+                          selecionado
+                            ? field.value.filter((id) => id !== perfilId)
+                            : [...field.value, perfilId]
+                        )
+                      }
+                      disabled={salvando}
+                      aria-pressed={selecionado}
+                      className={`btn btn-sm ${
+                        selecionado ? "btn-primary" : "btn-outline-secondary"
+                      }`}
+                    >
+                      {selecionado && (
+                        <i className="bi bi-check me-1" aria-hidden="true" />
+                      )}
+                      {perfil.nome}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          />
         </div>
       )}
 
-      {/* Ações */}
       <div className="col-12 d-flex gap-2 justify-content-end pt-2">
         <button
           type="button"

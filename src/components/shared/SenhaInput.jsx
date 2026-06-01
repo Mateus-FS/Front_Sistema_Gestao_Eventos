@@ -1,6 +1,6 @@
 export default function SenhaInput({
-  value,
-  onChange,
+  registration,
+  error,
   mostrarSenha,
   toggleSenha,
   onEsqueceuSenha,
@@ -20,19 +20,18 @@ export default function SenhaInput({
           </button>
         )}
       </div>
-      <div className="input-group">
+      <div className="input-group has-validation">
         <span className="input-group-text sge-input-addon">
           <i className="bi bi-lock" />
         </span>
         <input
           type={mostrarSenha ? "text" : "password"}
-          className="form-control sge-input"
+          className={`form-control sge-input ${error ? "is-invalid" : ""}`}
           id="senha"
           placeholder="••••••••"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
           disabled={disabled}
+          {...registration}
         />
         <button
           type="button"
@@ -43,6 +42,7 @@ export default function SenhaInput({
         >
           <i className={`bi ${mostrarSenha ? "bi-eye-slash" : "bi-eye"}`} />
         </button>
+        {error && <div className="invalid-feedback">{error}</div>}
       </div>
     </div>
   );

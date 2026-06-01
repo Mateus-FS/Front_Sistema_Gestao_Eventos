@@ -18,7 +18,6 @@ api.interceptors.request.use((config) => {
 const MENSAGENS = {
   401: "Sessão expirada",
   403: "Usuário sem permissão",
-  409: "Usuário já inscrito neste evento",
   500: "Erro interno",
 };
 
@@ -42,7 +41,7 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (status === 404) {
+    if (status === 404 || status === 409) {
       return Promise.reject(error);
     }
 

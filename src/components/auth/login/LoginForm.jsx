@@ -1,24 +1,33 @@
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useLogin } from "../../../hooks/auth/useLogin";
 import { loginSchema } from "../../../utils/loginSchema";
-import { useState } from "react";
 import EmailInput from "../../shared/EmailInput";
 import SenhaInput from "../../shared/SenhaInput";
-import LoginHeader from "./LoginHeader";
 import LoginFooter from "./LoginFooter";
-import { useNavigate } from "react-router-dom";
+import LoginHeader from "./LoginHeader";
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const { mutate, isPending } = useLogin();
 
-  const { handleSubmit, setValue, watch } = useForm({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = (data) => mutate(data);
+
+  const onInvalid = () => {
+    toast.warning("Preencha todos os campos obrigatórios.");
+  };
 
   return (
     <div className="container">
@@ -28,14 +37,14 @@ export default function LoginForm() {
             <div className="card-body p-4 p-md-5">
               <LoginHeader />
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
                 <EmailInput
-                  value={watch("email") ?? ""}
-                  onChange={(v) => setValue("email", v)}
+                  registration={register("email")}
+                  error={errors.email?.message}
                 />
                 <SenhaInput
-                  value={watch("senha") ?? ""}
-                  onChange={(v) => setValue("senha", v)}
+                  registration={register("senha")}
+                  error={errors.senha?.message}
                   mostrarSenha={mostrarSenha}
                   toggleSenha={() => setMostrarSenha(!mostrarSenha)}
                   onEsqueceuSenha={() => navigate("/recuperar-senha")}
