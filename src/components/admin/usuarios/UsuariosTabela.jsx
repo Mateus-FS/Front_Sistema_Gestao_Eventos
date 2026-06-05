@@ -4,7 +4,7 @@ import SpinnerCentral from "../../shared/SpinnerCentral";
 import TabelaVazia from "../../shared/TabelaVazia";
 import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
-import UsuarioFormulario from "./UsuarioFormulario";
+import UsuarioForm from "./UsuarioForm";
 
 export default function UsuariosTabela({ dados }) {
   const { lista, perfis, carregando, salvando, atualizar, deletar } = dados;
@@ -119,7 +119,7 @@ export default function UsuariosTabela({ dados }) {
 
       {modal.estaAberto && (
         <BaseModal titulo="Editar usuário" onFechar={modal.fechar}>
-          <UsuarioFormulario
+          <UsuarioForm
             key={modal.itemAtual.id}
             valoresIniciais={modal.itemAtual}
             perfis={perfis}

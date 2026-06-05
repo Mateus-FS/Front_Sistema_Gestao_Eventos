@@ -22,13 +22,18 @@ export const eventoSchema = (modoEdicao = false) =>
 
       salaId: z.preprocess(
         (val) => (val === "" || val === null || val === undefined ? null : Number(val)),
-        z.number().positive("Selecione uma sala válida.").nullable()
+        z.union([
+          z.number().positive("Selecione uma sala válida."),
+          z.null(),
+        ]).refine((val) => val !== null, { message: "Selecione uma sala válida." })
       ),
 
       organizadorId: z.preprocess(
         (val) => (val === "" || val === null || val === undefined ? null : Number(val)),
-        z.number({ invalid_type_error: "Selecione um organizador." })
-          .positive("Selecione um organizador.")
+        z.union([
+          z.number().positive("Selecione um organizador válido."),
+          z.null(),
+        ]).refine((val) => val !== null, { message: "Selecione um organizador válido." })
       ),
     })
     .superRefine((data, ctx) => {

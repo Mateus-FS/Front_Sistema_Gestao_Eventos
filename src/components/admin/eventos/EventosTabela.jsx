@@ -5,7 +5,7 @@ import SpinnerCentral from "../../shared/SpinnerCentral";
 import TabelaVazia from "../../shared/TabelaVazia";
 import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
-import EventoFormulario from "./EventoFormulario";
+import EventoForm from "./EventoForm";
 
 export default function EventosTabela({ dados }) {
   const { lista, salas, organizadores, carregando, salvando, salvar, deletar } =
@@ -131,7 +131,7 @@ export default function EventosTabela({ dados }) {
           titulo={modal.estaEditando ? "Editar evento" : "Novo evento"}
           onFechar={modal.fechar}
         >
-          <EventoFormulario
+          <EventoForm
             key={chaveFormulario}
             valoresIniciais={modal.itemAtual}
             salas={salas}

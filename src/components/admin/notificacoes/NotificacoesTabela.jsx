@@ -6,7 +6,9 @@ import SpinnerCentral from "../../shared/SpinnerCentral";
 import TabelaVazia from "../../shared/TabelaVazia";
 import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
-import NotificacaoFormulario from "./NotificacaoFormulario";
+import NotificacaoForm from "./NotificacaoForm";
+
+const ITENS_POR_PAGINA = 10;
 
 export default function NotificacoesTabela({ dados }) {
   const { lista, usuarios, carregando, salvando, enviar, deletar, deletarVarios } = dados;
@@ -14,6 +16,7 @@ export default function NotificacoesTabela({ dados }) {
   const [filtroDestinatario, setFiltroDestinatario] = useState("");
   const [selecionados, setSelecionados] = useState([]);
   const [confirmandoLote, setConfirmandoLote] = useState(false);
+  const [pagina, setPagina] = useState(1);
 
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
@@ -24,9 +27,15 @@ export default function NotificacoesTabela({ dados }) {
     return String(n.usuarioId) === filtroDestinatario;
   });
 
+  const totalPaginas = Math.ceil(listaFiltrada.length / ITENS_POR_PAGINA);
+  const listaFiltradaPaginada = listaFiltrada.slice(
+    (pagina - 1) * ITENS_POR_PAGINA,
+    pagina * ITENS_POR_PAGINA
+  );
+
   const todosSelecionados =
-    listaFiltrada.length > 0 &&
-    listaFiltrada.every((n) => selecionados.includes(n.id));
+    listaFiltradaPaginada.length > 0 &&
+    listaFiltradaPaginada.every((n) => selecionados.includes(n.id));
 
   const toggleSelecionado = (id) =>
     setSelecionados((prev) =>
@@ -34,7 +43,12 @@ export default function NotificacoesTabela({ dados }) {
     );
 
   const toggleTodos = () =>
-    setSelecionados(todosSelecionados ? [] : listaFiltrada.map((n) => n.id));
+    setSelecionados(todosSelecionados ? [] : listaFiltradaPaginada.map((n) => n.id));
+
+  const handleFiltroDestinatario = (e) => {
+    setFiltroDestinatario(e.target.value);
+    setPagina(1);
+  };
 
   const handleEnviar = async (dadosFormulario) => {
     await enviar(dadosFormulario);
@@ -54,7 +68,6 @@ export default function NotificacoesTabela({ dados }) {
 
   return (
     <>
-      {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <h6 className="fw-bold text-body-emphasis mb-0">
           <i className="bi bi-bell me-2 text-primary" aria-hidden="true" />
@@ -65,7 +78,7 @@ export default function NotificacoesTabela({ dados }) {
             className="form-select form-select-sm sge-input"
             style={{ width: "auto", minWidth: 180 }}
             value={filtroDestinatario}
-            onChange={(e) => setFiltroDestinatario(e.target.value)}
+            onChange={handleFiltroDestinatario}
             disabled={carregando || salvando}
             aria-label="Filtrar por destinatário"
           >
@@ -101,7 +114,6 @@ export default function NotificacoesTabela({ dados }) {
         </div>
       </div>
 
-      {/* Lista */}
       {carregando ? (
         <SpinnerCentral />
       ) : listaFiltrada.length === 0 ? (
@@ -115,7 +127,6 @@ export default function NotificacoesTabela({ dados }) {
         />
       ) : (
         <>
-          {/* Selecionar todos */}
           <div className="d-flex align-items-center gap-2 mb-2 ps-1">
             <input
               type="checkbox"
@@ -134,7 +145,7 @@ export default function NotificacoesTabela({ dados }) {
           </div>
 
           <div className="d-flex flex-column gap-2">
-            {listaFiltrada.map((notificacao) => {
+            {listaFiltradaPaginada.map((notificacao) => {
               const marcado = selecionados.includes(notificacao.id);
               return (
                 <div
@@ -192,17 +203,39 @@ export default function NotificacoesTabela({ dados }) {
             })}
           </div>
 
-          <div className="d-flex justify-content-end mt-2 pe-1">
+          <div className="d-flex justify-content-between align-items-center mt-3 pe-1">
             <span className="badge bg-primary bg-opacity-10 text-primary">
               {listaFiltrada.length} notificação(ões)
             </span>
+
+            {totalPaginas > 1 && (
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p - 1)}
+                  disabled={pagina === 1}
+                >
+                  <i className="bi bi-chevron-left" />
+                </button>
+                <span className="small text-body-secondary">
+                  {pagina} / {totalPaginas}
+                </span>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p + 1)}
+                  disabled={pagina === totalPaginas}
+                >
+                  <i className="bi bi-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
 
       {modal.estaAberto && (
         <BaseModal titulo="Nova notificação" onFechar={modal.fechar}>
-          <NotificacaoFormulario
+          <NotificacaoForm
             key="nova-notificacao"
             usuarios={usuarios}
             onEnviar={handleEnviar}

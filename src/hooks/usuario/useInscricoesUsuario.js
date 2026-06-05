@@ -22,11 +22,19 @@ export const useInscricoesUsuario = (usuarioId) => {
       invalidar();
     },
     onError: (error) => {
-      if (error.response?.status === 400) {
-        const data = error.response.data;
-        const mensagem = typeof data === "string" ? data : data?.message || "Erro de validação.";
-        toast.error(mensagem);
+      const status = error.response?.status;
+      const data = error.response?.data;
+      const mensagem = typeof data === "string" ? data : data?.message;
+
+      if (status === 409) {
+        toast.error(mensagem || "Você já está inscrito neste evento.");
+        return;
       }
+      if (status === 400) {
+        toast.error(mensagem || "Erro de validação.");
+        return;
+      }
+      toast.error("Erro ao realizar inscrição.");
     },
   });
 
@@ -38,11 +46,15 @@ export const useInscricoesUsuario = (usuarioId) => {
         invalidar();
       },
       onError: (error) => {
-        if (error.response?.status === 400) {
-          const data = error.response.data;
-          const mensagem = typeof data === "string" ? data : data?.message || "Erro de validação.";
-          toast.error(mensagem);
+        const status = error.response?.status;
+        const data = error.response?.data;
+        const mensagem = typeof data === "string" ? data : data?.message;
+
+        if (status === 400 || status === 409) {
+          toast.error(mensagem || "Erro ao cancelar inscrição.");
+          return;
         }
+        toast.error("Erro ao cancelar inscrição.");
       },
     });
 

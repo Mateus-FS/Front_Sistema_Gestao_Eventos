@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
     authStorage.set(data.token);
     authStorage.setNome(data.nome);
     setTokenState(data.token);
+    setNome(data.nome);
     return data;
   }, []);
 
@@ -44,6 +45,11 @@ export const AuthProvider = ({ children }) => {
     setTokenState(token);
   }, []);
 
+  const atualizarNome = useCallback((novoNome) => {
+    authStorage.setNome(novoNome);
+    setNome(novoNome);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -52,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         login,
         loginComToken,
         logout,
+        atualizarNome, // adicione aqui
         isAuthenticated: !!token,
       }}
     >

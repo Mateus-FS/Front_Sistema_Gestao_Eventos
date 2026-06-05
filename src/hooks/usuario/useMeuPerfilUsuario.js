@@ -6,7 +6,7 @@ import { useAuth } from "../auth/useAuth";
 export const useMeuPerfilUsuario = () => {
   const queryClient = useQueryClient();
 
-  const { user } = useAuth();
+  const { user, atualizarNome } = useAuth();
 
   const { data: usuario, isLoading: carregando } = useQuery({
     queryKey: ["usuario", user.id],
@@ -19,8 +19,9 @@ export const useMeuPerfilUsuario = () => {
 
   const { mutateAsync: salvar, isPending: salvandoSalvar } = useMutation({
     mutationFn: (dados) => usuarioService.atualizar(user.id, dados),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Perfil atualizado!");
+      atualizarNome(data.nome);
       invalidar();
     },
     onError: (error) => {

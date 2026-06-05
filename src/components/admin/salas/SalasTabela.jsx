@@ -4,7 +4,7 @@ import SpinnerCentral from "../../shared/SpinnerCentral";
 import TabelaVazia from "../../shared/TabelaVazia";
 import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
-import SalaFormulario from "./SalaFormulario";
+import SalaForm from "./SalaForm";
 
 export default function SalasTabela({ dados }) {
   const { lista, carregando, salvando, salvar, deletar } = dados;
@@ -113,7 +113,7 @@ export default function SalasTabela({ dados }) {
           titulo={modal.estaEditando ? "Editar sala" : "Nova sala"}
           onFechar={modal.fechar}
         >
-          <SalaFormulario
+          <SalaForm
             key={chaveFormulario}
             valoresIniciais={modal.itemAtual}
             onSalvar={handleSalvar}

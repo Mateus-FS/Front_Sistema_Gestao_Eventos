@@ -6,7 +6,7 @@ import SpinnerCentral from "../../shared/SpinnerCentral";
 import TabelaVazia from "../../shared/TabelaVazia";
 import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
-import InscricaoFormulario from "./InscricaoFormulario";
+import InscricaoForm from "./InscricaoForm";
 
 const CLASSE_STATUS = {
   CONFIRMADA: "sge-badge-confirmada",
@@ -223,7 +223,7 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
 
       {modal.estaAberto && (
         <BaseModal titulo="Nova inscrição" onFechar={modal.fechar}>
-          <InscricaoFormulario
+          <InscricaoForm
             key="nova-inscricao"
             usuarios={usuarios}
             eventos={eventos}
