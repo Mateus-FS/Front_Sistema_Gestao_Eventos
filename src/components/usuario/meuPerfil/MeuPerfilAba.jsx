@@ -1,4 +1,4 @@
-import MeuPerfilFormulario from "./MeuPerfilFormulario";
+import MeuPerfilForm from "./MeuPerfilForm";
 import { useMeuPerfilUsuario } from "../../../hooks/usuario/useMeuPerfilUsuario";
 
 export default function MeuPerfilAba() {
@@ -63,7 +63,7 @@ export default function MeuPerfilAba() {
             <hr className="flex-grow-1 m-0" style={{ borderColor: "var(--bs-border-color)" }} />
           </div>
 
-          <MeuPerfilFormulario
+          <MeuPerfilForm
             usuario={usuario}
             salvando={salvando}
             onSalvar={salvar}

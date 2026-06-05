@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
         login,
         loginComToken,
         logout,
-        atualizarNome, // adicione aqui
+        atualizarNome,
         isAuthenticated: !!token,
       }}
     >
