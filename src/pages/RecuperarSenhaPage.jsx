@@ -1,22 +1,21 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import "../styles/RecuperarSenha.css";
 
 export default function RecuperarSenhaPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
-  // Se vier ?token=xxx na URL, já vai direto para a etapa de redefinir
-  const tokenInicial = searchParams.get("token") || "";
+  const [etapa, setEtapa] = useState("solicitar");
 
-  const [etapa, setEtapa] = useState(tokenInicial ? "redefinir" : "solicitar");
-
-  // Etapa 1 – solicitar
+  // Etapa 1
   const [email, setEmail] = useState("");
 
-  // Etapa 2 – redefinir
-  const [token, setToken] = useState(tokenInicial);
+  // Token retornado pelo backend — exibido na tela
+  const [tokenGerado, setTokenGerado] = useState("");
+
+  // Etapa 2
+  const [token, setToken] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [mostrarNova, setMostrarNova] = useState(false);
@@ -26,28 +25,33 @@ export default function RecuperarSenhaPage() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
-  // ── Etapa 1: solicitar e-mail ──────────────────────────
+  // ── Etapa 1: solicitar ──────────────────────────────────────
   const handleSolicitar = async (e) => {
     e.preventDefault();
     if (!email) { setErro("Informe seu e-mail."); return; }
     setErro("");
     setCarregando(true);
     try {
-      await authService.solicitarRecuperacao(email);
-      setSucesso(
-        "Se este e-mail estiver cadastrado, você receberá as instruções em breve."
-      );
+      const data = await authService.solicitarRecuperacao(email);
+      // Backend devolve { token: "ABC12345" }
+      setTokenGerado(data.token);
+      setToken(data.token); // já preenche o campo da etapa 2
+      setEtapa("redefinir");
     } catch (err) {
-      setErro(err.message || "Erro ao solicitar recuperação. Tente novamente.");
+      const msg = err.response?.data?.message
+        || err.response?.data
+        || err.message
+        || "E-mail não encontrado.";
+      setErro(typeof msg === "string" ? msg : "Erro ao solicitar recuperação.");
     } finally {
       setCarregando(false);
     }
   };
 
-  // ── Etapa 2: redefinir senha ───────────────────────────
+  // ── Etapa 2: redefinir ──────────────────────────────────────
   const handleRedefinir = async (e) => {
     e.preventDefault();
-    if (!token) { setErro("Informe o token recebido por e-mail."); return; }
+    if (!token) { setErro("O token não pode estar vazio."); return; }
     if (novaSenha.length < 4) { setErro("A senha deve ter pelo menos 4 caracteres."); return; }
     if (novaSenha !== confirmarSenha) { setErro("As senhas não coincidem."); return; }
     setErro("");
@@ -57,7 +61,11 @@ export default function RecuperarSenhaPage() {
       setSucesso("Senha redefinida com sucesso! Redirecionando para o login...");
       setTimeout(() => navigate("/login"), 2500);
     } catch (err) {
-      setErro(err.message || "Token inválido ou expirado. Tente novamente.");
+      const msg = err.response?.data?.message
+        || err.response?.data
+        || err.message
+        || "Token inválido ou expirado.";
+      setErro(typeof msg === "string" ? msg : "Erro ao redefinir senha.");
     } finally {
       setCarregando(false);
     }
@@ -85,8 +93,8 @@ export default function RecuperarSenhaPage() {
                   </h4>
                   <p className="text-body-secondary small">
                     {etapa === "solicitar"
-                      ? "Informe seu e-mail para receber as instruções"
-                      : "Crie uma nova senha para sua conta"}
+                      ? "Informe seu e-mail para gerar o token"
+                      : "Use o token abaixo para criar uma nova senha"}
                   </p>
                 </div>
 
@@ -103,7 +111,7 @@ export default function RecuperarSenhaPage() {
                   </div>
                 </div>
 
-                {/* Sucesso */}
+                {/* Sucesso final */}
                 {sucesso && (
                   <div className="alert alert-success py-2 small text-center" role="alert">
                     <i className="bi bi-check-circle-fill me-2" />
@@ -120,7 +128,7 @@ export default function RecuperarSenhaPage() {
                   </div>
                 )}
 
-                {/* ── ETAPA 1: Solicitar ────────────────── */}
+                {/* ── ETAPA 1: Solicitar ──────────────── */}
                 {etapa === "solicitar" && !sucesso && (
                   <form onSubmit={handleSolicitar} noValidate>
                     <div className="mb-4">
@@ -143,10 +151,6 @@ export default function RecuperarSenhaPage() {
                           autoComplete="email"
                         />
                       </div>
-                      <div className="form-text small text-body-secondary mt-1">
-                        <i className="bi bi-info-circle me-1" />
-                        Enviaremos um link de recuperação para este e-mail.
-                      </div>
                     </div>
 
                     <div className="d-grid">
@@ -158,35 +162,34 @@ export default function RecuperarSenhaPage() {
                         {carregando ? (
                           <>
                             <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                            Enviando...
+                            Gerando token...
                           </>
                         ) : (
-                          <>
-                            Enviar instruções <i className="bi bi-send ms-1" />
-                          </>
+                          <>Gerar token <i className="bi bi-send ms-1" /></>
                         )}
                       </button>
                     </div>
-
-                    {/* Link para ir direto à etapa 2 (caso já tenha o token) */}
-                    <p className="text-center text-body-secondary small mt-3 mb-0">
-                      Já tem o token?{" "}
-                      <button
-                        type="button"
-                        className="btn btn-link sge-link fw-semibold text-decoration-none p-0 small"
-                        onClick={() => { setErro(""); setSucesso(""); setEtapa("redefinir"); }}
-                      >
-                        Inserir aqui
-                      </button>
-                    </p>
                   </form>
                 )}
 
-                {/* ── ETAPA 2: Redefinir ────────────────── */}
+                {/* ── ETAPA 2: Token gerado + Redefinir ── */}
                 {etapa === "redefinir" && !sucesso && (
                   <form onSubmit={handleRedefinir} noValidate>
 
-                    {/* Token */}
+                    {/* Exibe o token gerado com destaque */}
+                    {tokenGerado && (
+                      <div className="sge-token-box mb-4">
+                        <p className="small text-body-secondary mb-1">
+                          <i className="bi bi-info-circle me-1" />
+                          Token gerado — já preenchido abaixo:
+                        </p>
+                        <div className="sge-token-valor">
+                          {tokenGerado}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Campo token (já vem preenchido) */}
                     <div className="mb-3">
                       <label htmlFor="token" className="form-label fw-semibold small text-body-emphasis">
                         Token de recuperação
@@ -199,11 +202,10 @@ export default function RecuperarSenhaPage() {
                           type="text"
                           className="form-control sge-input"
                           id="token"
-                          placeholder="Cole o token recebido por e-mail"
+                          placeholder="Token"
                           value={token}
                           onChange={(e) => { setToken(e.target.value); setErro(""); }}
                           required
-                          autoFocus={!tokenInicial}
                           autoComplete="off"
                         />
                       </div>
@@ -226,14 +228,11 @@ export default function RecuperarSenhaPage() {
                           value={novaSenha}
                           onChange={(e) => { setNovaSenha(e.target.value); setErro(""); }}
                           required
+                          autoFocus
                           autoComplete="new-password"
                         />
-                        <button
-                          type="button"
-                          className="btn sge-toggle-pw input-group-text"
-                          onClick={() => setMostrarNova(!mostrarNova)}
-                          tabIndex={-1}
-                        >
+                        <button type="button" className="btn sge-toggle-pw input-group-text"
+                          onClick={() => setMostrarNova(!mostrarNova)} tabIndex={-1}>
                           <i className={`bi ${mostrarNova ? "bi-eye-slash" : "bi-eye"}`} />
                         </button>
                       </div>
@@ -258,44 +257,32 @@ export default function RecuperarSenhaPage() {
                           required
                           autoComplete="new-password"
                         />
-                        <button
-                          type="button"
-                          className="btn sge-toggle-pw input-group-text"
-                          onClick={() => setMostrarConfirmar(!mostrarConfirmar)}
-                          tabIndex={-1}
-                        >
+                        <button type="button" className="btn sge-toggle-pw input-group-text"
+                          onClick={() => setMostrarConfirmar(!mostrarConfirmar)} tabIndex={-1}>
                           <i className={`bi ${mostrarConfirmar ? "bi-eye-slash" : "bi-eye"}`} />
                         </button>
                       </div>
                     </div>
 
                     <div className="d-grid">
-                      <button
-                        type="submit"
-                        className="btn btn-primary sge-btn-login"
-                        disabled={carregando}
-                      >
+                      <button type="submit" className="btn btn-primary sge-btn-login" disabled={carregando}>
                         {carregando ? (
                           <>
                             <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
                             Salvando...
                           </>
                         ) : (
-                          <>
-                            Redefinir senha <i className="bi bi-arrow-right ms-1" />
-                          </>
+                          <>Redefinir senha <i className="bi bi-arrow-right ms-1" /></>
                         )}
                       </button>
                     </div>
 
                     <p className="text-center text-body-secondary small mt-3 mb-0">
-                      Não recebeu o token?{" "}
-                      <button
-                        type="button"
+                      E-mail errado?{" "}
+                      <button type="button"
                         className="btn btn-link sge-link fw-semibold text-decoration-none p-0 small"
-                        onClick={() => { setErro(""); setSucesso(""); setToken(""); setEtapa("solicitar"); }}
-                      >
-                        Reenviar e-mail
+                        onClick={() => { setErro(""); setEtapa("solicitar"); setTokenGerado(""); setToken(""); }}>
+                        Tentar novamente
                       </button>
                     </p>
                   </form>
@@ -303,11 +290,9 @@ export default function RecuperarSenhaPage() {
 
                 {/* Voltar ao login */}
                 <p className="text-center text-body-secondary small mt-4 mb-0">
-                  <button
-                    type="button"
+                  <button type="button"
                     className="btn btn-link sge-link text-decoration-none p-0 small"
-                    onClick={() => navigate("/login")}
-                  >
+                    onClick={() => navigate("/login")}>
                     <i className="bi bi-arrow-left me-1" />
                     Voltar ao login
                   </button>

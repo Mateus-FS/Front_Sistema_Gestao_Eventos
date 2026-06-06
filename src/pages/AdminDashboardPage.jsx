@@ -9,7 +9,7 @@ import UsuariosTabela from "../components/admin/usuarios/UsuariosTabela";
 import Navbar from "../components/layout/Navbar";
 import { useDashboardAdmin } from "../hooks/admin/useDashboardAdmin";
 import { useAuth } from "../hooks/auth/useAuth";
-import "../styles/dashboard.css";
+import "../styles/Dashboard.css";
 
 const ABAS = [
   { id: "eventos", icone: "bi-calendar-event", label: "Eventos" },

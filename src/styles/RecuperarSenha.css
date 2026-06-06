@@ -37,3 +37,19 @@
 .sge-etapa-linha-ativa {
   background: linear-gradient(90deg, var(--zephyr-primary), #5b7af5);
 }
+
+/* Box do token gerado */
+.sge-token-box {
+  background: rgba(var(--zephyr-primary-rgb), 0.06);
+  border: 1.5px dashed rgba(var(--zephyr-primary-rgb), 0.35);
+  border-radius: var(--zephyr-radius);
+  padding: 0.85rem 1rem;
+}
+.sge-token-valor {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  color: var(--zephyr-primary);
+  text-align: center;
+  font-family: monospace;
+}
