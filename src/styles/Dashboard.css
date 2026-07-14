@@ -88,6 +88,16 @@
   box-shadow: 0 3px 10px rgba(var(--zephyr-primary-rgb), 0.3) !important;
   transition: transform 0.15s, filter 0.15s !important;
 }
+
+/* Botão inscrição — estado "inscrito" */
+.sge-btn-inscrito {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3) !important;
+}
+.sge-btn-inscrito:hover {
+  filter: brightness(1.08);
+}
+
 .sge-btn-inscricao:hover {
   transform: translateY(-1px);
   filter: brightness(1.06);

@@ -1,6 +1,13 @@
 import { formatarData } from "../../../utils/formatacoes";
 
-export default function EventoCard({ evento, onInscrever }) {
+export default function EventoCard({ evento, inscricao, onInscrever, onDesinscrever, salvando }) {
+  const inscrito = Boolean(inscricao);
+
+  const handleClick = () => {
+    if (inscrito) onDesinscrever(inscricao.id);
+    else onInscrever(evento.id);
+  };
+
   return (
     <div className="col-12 col-md-6 col-lg-4">
       <div className="card sge-card h-100 border-0 shadow-sm">
@@ -24,6 +31,7 @@ export default function EventoCard({ evento, onInscrever }) {
             {evento.salaNome && (
               <div>
                 <i className="bi bi-geo-alt me-1" />
+                {evento.salaBloco ? `Bloco ${evento.salaBloco} - ` : ""}
                 {evento.salaLocalizacao ? `${evento.salaLocalizacao} - ` : ""}
                 {evento.salaNome}
               </div>
@@ -36,11 +44,17 @@ export default function EventoCard({ evento, onInscrever }) {
             )}
           </div>
           <button
-            className="btn btn-primary sge-btn-inscricao w-100 mt-auto"
-            onClick={() => onInscrever(evento.id)}
+            type="button"
+            className={`btn sge-btn-inscricao w-100 mt-auto${inscrito ? " sge-btn-inscrito" : ""}`}
+            onClick={handleClick}
+            disabled={salvando}
           >
-            <i className="bi bi-plus-circle me-2" />
-            Inscrever-se
+            {salvando ? (
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+            ) : (
+              <i className={`bi ${inscrito ? "bi-check-circle-fill" : "bi-plus-circle"} me-2`} />
+            )}
+            {inscrito ? "Inscrito" : "Inscrever-se"}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { eventoSchema } from "../../../utils/admin/eventoSchema";
@@ -20,7 +20,16 @@ export default function EventoForm({
 
   const schema = useMemo(() => eventoSchema(modoEdicao), [modoEdicao]);
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm(
+  const salaIdInicial = String(
+    valoresIniciais.salaId ?? valoresIniciais.sala?.id ?? ""
+  );
+  const salaInicial = salas.find((s) => String(s.id) === salaIdInicial);
+
+  const [blocoSelecionado, setBlocoSelecionado] = useState(
+    salaInicial?.bloco ?? ""
+  );
+
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm(
     {
       resolver: zodResolver(schema),
       defaultValues: {
@@ -29,7 +38,7 @@ export default function EventoForm({
         tipoEvento: valoresIniciais.tipoEvento ?? "",
         dataInicio: paraInputDatetimeLocal(valoresIniciais.dataInicio),
         dataTermino: paraInputDatetimeLocal(valoresIniciais.dataTermino),
-        salaId: String(valoresIniciais.salaId ?? valoresIniciais.sala?.id ?? ""),
+        salaId: salaIdInicial,
         organizadorId: String(
           valoresIniciais.organizadorId ?? valoresIniciais.organizador?.id ?? ""
         ),
@@ -37,6 +46,21 @@ export default function EventoForm({
     });
 
   const dataInicio = watch("dataInicio");
+
+  const blocos = useMemo(() => {
+    const unicos = new Set(salas.map((s) => s.bloco).filter(Boolean));
+    return Array.from(unicos).sort();
+  }, [salas]);
+
+  const salasDoBloco = useMemo(
+    () => salas.filter((s) => !blocoSelecionado || s.bloco === blocoSelecionado),
+    [salas, blocoSelecionado]
+  );
+
+  const handleBlocoChange = (e) => {
+    setBlocoSelecionado(e.target.value);
+    setValue("salaId", "");
+  };
 
   const onSubmit = (data) => onSalvar(data);
 
@@ -135,9 +159,30 @@ export default function EventoForm({
         )}
       </div>
 
-      <div className="col-md-6">
+      <div className="col-md-3">
+        <label htmlFor="evento-bloco" className="form-label fw-semibold small">
+          Bloco
+        </label>
+        <select
+          id="evento-bloco"
+          className="form-select sge-input"
+          disabled={salvando}
+          value={blocoSelecionado}
+          onChange={handleBlocoChange}
+        >
+          <option value="">Todos os blocos</option>
+          {blocos.map((bloco) => (
+            <option key={bloco} value={bloco}>
+              {bloco}
+            </option>
+          ))}
+        </select>
+        <div className="form-text">Filtra as salas abaixo.</div>
+      </div>
+
+      <div className="col-md-3">
         <label htmlFor="evento-sala" className="form-label fw-semibold small">
-          Sala
+          Sala *
         </label>
         <select
           id="evento-sala"
@@ -146,7 +191,7 @@ export default function EventoForm({
           {...register("salaId")}
         >
           <option value="">Selecione...</option>
-          {salas.map((sala) => (
+          {salasDoBloco.map((sala) => (
             <option key={sala.id} value={String(sala.id)}>
               {sala.nome} ({sala.capacidade} lugares)
             </option>

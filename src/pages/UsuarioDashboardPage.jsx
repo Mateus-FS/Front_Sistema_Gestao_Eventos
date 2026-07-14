@@ -55,7 +55,9 @@ export default function UsuarioDashboardPage() {
         {abaAtiva === "eventos" && (
           <EventosAba
             dados={eventos}
+            inscricoes={inscricoes}
             onInscrever={inscricoes.inscrever}
+            onDesinscrever={inscricoes.desinscrever}
             onAtualizar={recarregarTudo}
           />
         )}

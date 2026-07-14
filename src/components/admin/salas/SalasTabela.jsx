@@ -61,6 +61,10 @@ export default function SalasTabela({ dados }) {
                         {sala.nome}
                       </div>
                       <div className="text-body-secondary small mt-1">
+                        <i className="bi bi-building me-1" aria-hidden="true" />
+                        Bloco {sala.bloco || "—"}
+                      </div>
+                      <div className="text-body-secondary small">
                         <i className="bi bi-geo-alt me-1" aria-hidden="true" />
                         {sala.localizacao || "—"}
                       </div>

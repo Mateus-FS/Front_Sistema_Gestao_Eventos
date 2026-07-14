@@ -7,8 +7,9 @@ export const formatarData = (valor) => {
 
 export const formatarSala = (evento) => {
   if (!evento.salaNome) return "—";
+  const bloco = evento.salaBloco ? `Bloco ${evento.salaBloco} - ` : "";
   const local = evento.salaLocalizacao ? `${evento.salaLocalizacao} - ` : "";
-  return `${local}${evento.salaNome}`;
+  return `${bloco}${local}${evento.salaNome}`;
 };
 
 export const formatarDestinatario = (notificacao) => {

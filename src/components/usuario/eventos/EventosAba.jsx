@@ -1,8 +1,20 @@
+import { useMemo } from "react";
 import SpinnerCentral from "../../shared/SpinnerCentral";
 import EventoCard from "./EventoCard";
 
-export default function EventosAba({ dados, onInscrever, onAtualizar }) {
+export default function EventosAba({ dados, inscricoes, onInscrever, onDesinscrever, onAtualizar }) {
   const { lista, carregando } = dados;
+  const { lista: minhasInscricoes = [], salvando } = inscricoes;
+
+  const inscricaoPorEvento = useMemo(() => {
+    const mapa = new Map();
+    minhasInscricoes.forEach((inscricao) => {
+      if (inscricao.status !== "CANCELADA") {
+        mapa.set(inscricao.eventoId, inscricao);
+      }
+    });
+    return mapa;
+  }, [minhasInscricoes]);
 
   if (carregando) return <SpinnerCentral />;
 
@@ -37,7 +49,10 @@ export default function EventosAba({ dados, onInscrever, onAtualizar }) {
             <EventoCard
               key={evento.id}
               evento={evento}
+              inscricao={inscricaoPorEvento.get(evento.id)}
               onInscrever={onInscrever}
+              onDesinscrever={onDesinscrever}
+              salvando={salvando}
             />
           ))}
         </div>

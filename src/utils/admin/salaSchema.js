@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const salaSchema = z.object({
   nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres."),
+  bloco: z.string().min(1, "Informe o bloco."),
   localizacao: z.string().min(2, "A localização deve ter pelo menos 2 caracteres."),
   capacidade: z.preprocess(
     (val) => {

@@ -10,10 +10,11 @@ export default function SalaForm({
 }) {
   const modoEdicao = Boolean(valoresIniciais.id);
 
-  const { register,handleSubmit,formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(salaSchema),
     defaultValues: {
       nome: valoresIniciais.nome ?? "",
+      bloco: valoresIniciais.bloco ?? "",
       localizacao: valoresIniciais.localizacao ?? "",
       capacidade: valoresIniciais.capacidade ?? "",
     },
@@ -31,7 +32,7 @@ export default function SalaForm({
           id="sala-nome"
           className={`form-control sge-input${errors.nome ? " is-invalid" : ""}`}
           disabled={salvando}
-          placeholder="Ex: Auditório Principal"
+          placeholder="Ex: Sala 12"
           {...register("nome")}
         />
         {errors.nome && (
@@ -39,15 +40,31 @@ export default function SalaForm({
         )}
       </div>
 
-      <div className="col-md-8">
+      <div className="col-md-4">
+        <label htmlFor="sala-bloco" className="form-label fw-semibold small">
+          Bloco *
+        </label>
+        <input
+          id="sala-bloco"
+          className={`form-control sge-input${errors.bloco ? " is-invalid" : ""}`}
+          disabled={salvando}
+          placeholder="Ex: Bloco A"
+          {...register("bloco")}
+        />
+        {errors.bloco && (
+          <div className="invalid-feedback">{errors.bloco.message}</div>
+        )}
+      </div>
+
+      <div className="col-md-4">
         <label htmlFor="sala-localizacao" className="form-label fw-semibold small">
-          Localização
+          Localização *
         </label>
         <input
           id="sala-localizacao"
           className={`form-control sge-input${errors.localizacao ? " is-invalid" : ""}`}
           disabled={salvando}
-          placeholder="Ex: Bloco A, 2º andar"
+          placeholder="Ex: 2º andar"
           {...register("localizacao")}
         />
         {errors.localizacao && (
