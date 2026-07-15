@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useConfirmacao } from "../../../hooks/ui/useConfirmacao";
 import { useModalEdicao } from "../../../hooks/ui/useModalEdicao";
 import SpinnerCentral from "../../shared/SpinnerCentral";
@@ -6,11 +7,21 @@ import BaseModal from "../BaseModal";
 import ConfirmacaoModal from "../ConfirmacaoModal";
 import UsuarioForm from "./UsuarioForm";
 
+const ITENS_POR_PAGINA = 5;
+
 export default function UsuariosTabela({ dados }) {
   const { lista, perfis, carregando, salvando, atualizar, deletar } = dados;
 
+  const [pagina, setPagina] = useState(1);
+
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
+
+  const totalPaginas = Math.ceil(lista.length / ITENS_POR_PAGINA);
+  const listaPaginada = lista.slice(
+    (pagina - 1) * ITENS_POR_PAGINA,
+    pagina * ITENS_POR_PAGINA
+  );
 
   const handleSalvar = async (dadosFormulario) => {
     await atualizar(modal.itemAtual.id, dadosFormulario);
@@ -53,7 +64,7 @@ export default function UsuariosTabela({ dados }) {
               </tr>
             </thead>
             <tbody>
-              {lista.map((usuario) => (
+              {listaPaginada.map((usuario) => (
                 <tr key={usuario.id}>
                   <td className="fw-semibold">{usuario.nome}</td>
                   <td className="text-body-secondary">{usuario.email}</td>
@@ -109,10 +120,32 @@ export default function UsuariosTabela({ dados }) {
               ))}
             </tbody>
           </table>
-          <div className="d-flex justify-content-end me-2">
+          <div className="d-flex justify-content-between align-items-center mt-2 me-2">
             <span className="badge bg-primary bg-opacity-10 text-primary">
               {lista.length} usuário(s)
             </span>
+
+            {totalPaginas > 1 && (
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p - 1)}
+                  disabled={pagina === 1}
+                >
+                  <i className="bi bi-chevron-left" />
+                </button>
+                <span className="small text-body-secondary">
+                  {pagina} / {totalPaginas}
+                </span>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p + 1)}
+                  disabled={pagina === totalPaginas}
+                >
+                  <i className="bi bi-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -16,6 +16,8 @@ const CLASSE_STATUS = {
 
 const classeStatus = (status) => CLASSE_STATUS[status] ?? "sge-badge-pendente";
 
+const ITENS_POR_PAGINA = 5;
+
 export default function InscricoesTabela({ dados, eventos = [], usuarios = [] }) {
   const {
     lista,
@@ -35,6 +37,23 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
   const modal = useModalEdicao();
   const confirmacao = useConfirmacao();
   const [tipoAcao, setTipoAcao] = useState(null);
+  const [pagina, setPagina] = useState(1);
+
+  const totalPaginas = Math.ceil(lista.length / ITENS_POR_PAGINA);
+  const listaPaginada = lista.slice(
+    (pagina - 1) * ITENS_POR_PAGINA,
+    pagina * ITENS_POR_PAGINA
+  );
+
+  const handleFiltroEvento = (e) => {
+    setFiltroEvento(e.target.value);
+    setPagina(1);
+  };
+
+  const handleFiltroUsuario = (e) => {
+    setFiltroUsuario(e.target.value);
+    setPagina(1);
+  };
 
   const handleSalvar = async (dadosFormulario) => {
     await salvar(dadosFormulario);
@@ -88,7 +107,7 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
             className="form-select form-select-sm sge-input"
             style={{ width: "auto", minWidth: 180 }}
             value={filtroEvento}
-            onChange={(e) => setFiltroEvento(e.target.value)}
+            onChange={handleFiltroEvento}
             disabled={carregando || salvando}
             aria-label="Filtrar por evento"
           >
@@ -105,7 +124,7 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
             style={{ width: 180 }}
             placeholder="Buscar usuário..."
             value={filtroUsuario}
-            onChange={(e) => setFiltroUsuario(e.target.value)}
+            onChange={handleFiltroUsuario}
             disabled={carregando || salvando}
             aria-label="Buscar usuário"
           />
@@ -144,7 +163,7 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
               </tr>
             </thead>
             <tbody>
-              {lista.map((inscricao) => (
+              {listaPaginada.map((inscricao) => (
                 <tr key={inscricao.id}>
                   <td className="fw-semibold">{inscricao.usuarioNome}</td>
                   <td className="text-body-secondary">
@@ -213,10 +232,32 @@ export default function InscricoesTabela({ dados, eventos = [], usuarios = [] })
               ))}
             </tbody>
           </table>
-          <div className="d-flex justify-content-end me-2">
+          <div className="d-flex justify-content-between align-items-center mt-2 me-2">
             <span className="badge bg-primary bg-opacity-10 text-primary">
               {lista.length} inscrição(ões)
             </span>
+
+            {totalPaginas > 1 && (
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p - 1)}
+                  disabled={pagina === 1}
+                >
+                  <i className="bi bi-chevron-left" />
+                </button>
+                <span className="small text-body-secondary">
+                  {pagina} / {totalPaginas}
+                </span>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setPagina((p) => p + 1)}
+                  disabled={pagina === totalPaginas}
+                >
+                  <i className="bi bi-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
